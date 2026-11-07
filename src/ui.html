@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                height: 100%;
+            }
+            body {
+                font:
+                    11px/16px Inter,
+                    system-ui,
+                    -apple-system,
+                    sans-serif;
+                color: var(--figma-color-text, #333);
+                background: var(--figma-color-bg, #fff);
+                display: flex;
+                flex-direction: column;
+            }
+            button,
+            input,
+            select {
+                font: inherit;
+                color: inherit;
+            }
+            header {
+                padding: 8px;
+                border-bottom: 1px solid var(--figma-color-border, #e6e6e6);
+                display: flex;
+                gap: 6px;
+                align-items: center;
+            }
+            .search {
+                flex: 1;
+                height: 32px;
+                padding: 0 8px;
+                border: 1px solid var(--figma-color-border, #e6e6e6);
+                border-radius: 5px;
+                background: transparent;
+                outline: none;
+            }
+            .search:focus {
+                border-color: var(--figma-color-border-selected, #0d99ff);
+            }
+            .icon-button {
+                width: 32px;
+                height: 32px;
+                border: 0;
+                border-radius: 5px;
+                background: transparent;
+                cursor: pointer;
+                font-size: 16px;
+            }
+            .icon-button:hover {
+                background: var(--figma-color-bg-hover, #f5f5f5);
+            }
+            main {
+                flex: 1;
+                overflow-y: auto;
+            }
+            .notice {
+                margin: 8px;
+                padding: 6px 8px;
+                border-radius: 5px;
+                background: var(--figma-color-bg-warning-tertiary, #fff1c2);
+                color: var(--figma-color-text, #333);
+            }
+            .empty {
+                padding: 24px 16px;
+                text-align: center;
+                color: var(--figma-color-text-secondary, #757575);
+            }
+            .airline {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                width: 100%;
+                padding: 6px 12px;
+                border: 0;
+                background: transparent;
+                text-align: left;
+                cursor: pointer;
+            }
+            .airline:hover,
+            .airline:focus-visible {
+                background: var(--figma-color-bg-hover, #f5f5f5);
+                outline: none;
+            }
+            .thumb {
+                width: 28px;
+                height: 28px;
+                flex: none;
+                object-fit: contain;
+            }
+            .airline-text {
+                flex: 1;
+                min-width: 0;
+            }
+            .airline-name {
+                font-weight: 500;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .secondary {
+                color: var(--figma-color-text-secondary, #757575);
+            }
+            .badge {
+                margin-left: 4px;
+                padding: 0 4px;
+                border-radius: 3px;
+                background: var(--figma-color-bg-secondary, #f0f0f0);
+                color: var(--figma-color-text-secondary, #757575);
+                font-size: 10px;
+            }
+            .detail-title {
+                flex: 1;
+                min-width: 0;
+            }
+            .detail-title h1 {
+                margin: 0;
+                font-size: 13px;
+                line-height: 18px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .controls {
+                display: flex;
+                gap: 12px;
+                align-items: center;
+                padding: 8px 12px;
+                border-bottom: 1px solid var(--figma-color-border, #e6e6e6);
+            }
+            .controls label {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+            }
+            .controls select {
+                height: 24px;
+                border: 1px solid var(--figma-color-border, #e6e6e6);
+                border-radius: 4px;
+                background: var(--figma-color-bg, #fff);
+            }
+            .controls input[type='color'] {
+                width: 24px;
+                height: 24px;
+                padding: 0;
+                border: 1px solid var(--figma-color-border, #e6e6e6);
+                border-radius: 4px;
+                background: none;
+                cursor: pointer;
+            }
+            .link-button {
+                border: 0;
+                padding: 0;
+                background: none;
+                color: var(--figma-color-text-brand, #0d99ff);
+                cursor: pointer;
+            }
+            .tiles {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+                padding: 12px;
+            }
+            .tile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+                padding: 12px 8px 8px;
+                border: 1px solid var(--figma-color-border, #e6e6e6);
+                border-radius: 6px;
+                background: transparent;
+                cursor: grab;
+            }
+            .tile:hover,
+            .tile:focus-visible {
+                border-color: var(--figma-color-border-selected, #0d99ff);
+                outline: none;
+            }
+            .tile-preview {
+                width: 100%;
+                height: 88px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                /* A checkerboard, so white and transparent parts show */
+                background-color: var(--figma-color-bg, #fff);
+                background-image:
+                    linear-gradient(
+                        45deg,
+                        var(--figma-color-bg-secondary, #f0f0f0) 25%,
+                        transparent 25%
+                    ),
+                    linear-gradient(
+                        -45deg,
+                        var(--figma-color-bg-secondary, #f0f0f0) 25%,
+                        transparent 25%
+                    ),
+                    linear-gradient(
+                        45deg,
+                        transparent 75%,
+                        var(--figma-color-bg-secondary, #f0f0f0) 75%
+                    ),
+                    linear-gradient(
+                        -45deg,
+                        transparent 75%,
+                        var(--figma-color-bg-secondary, #f0f0f0) 75%
+                    );
+                background-size: 12px 12px;
+                background-position:
+                    0 0,
+                    0 6px,
+                    6px -6px,
+                    -6px 0;
+            }
+            .tile-preview img {
+                width: 72px;
+                height: 72px;
+                pointer-events: none;
+            }
+            footer {
+                padding: 6px 12px;
+                border-top: 1px solid var(--figma-color-border, #e6e6e6);
+                color: var(--figma-color-text-secondary, #757575);
+            }
+            footer a {
+                color: inherit;
+            }
+            [hidden] {
+                display: none !important;
+            }
+        </style>
+    </head>
+    <body>
+        <section id="list-view">
+            <header>
+                <input
+                    id="search"
+                    class="search"
+                    type="search"
+                    placeholder="Search by name, IATA or ICAO code"
+                    autocomplete="off"
+                    spellcheck="false"
+                    autofocus
+                />
+            </header>
+        </section>
+        <section id="detail-view" hidden>
+            <header>
+                <button
+                    id="back"
+                    class="icon-button"
+                    title="Back to airlines"
+                    aria-label="Back to airlines"
+                >
+                    ←
+                </button>
+                <div class="detail-title">
+                    <h1 id="detail-name"></h1>
+                    <div id="detail-meta" class="secondary"></div>
+                </div>
+            </header>
+            <div class="controls">
+                <label>
+                    Size
+                    <select id="size"></select>
+                </label>
+                <label>
+                    Mono
+                    <input id="mono-color" type="color" />
+                </label>
+                <button id="brand-color" class="link-button" type="button">
+                    Use brand color
+                </button>
+            </div>
+        </section>
+        <main id="content"></main>
+        <footer>
+            Click a mark to insert it, or drag it onto the canvas.
+            <a
+                href="https://soaringsymbols.org"
+                target="_blank"
+                rel="noreferrer"
+                >soaringsymbols.org</a
+            >
+        </footer>
+        <script>
+            /* ui.ts is inlined here by the build */
+        </script>
+    </body>
+</html>

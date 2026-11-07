@@ -1,0 +1,13 @@
+{
+    "name": "Soaring Symbols",
+    "id": "soaring-symbols-dev",
+    "api": "1.0.0",
+    "main": "dist/code.js",
+    "ui": "dist/ui.html",
+    "editorType": ["figma", "figjam"],
+    "documentAccess": "dynamic-page",
+    "networkAccess": {
+        "allowedDomains": ["https://cdn.jsdelivr.net"],
+        "reasoning": "Loads the airline list and SVG marks of the soaring-symbols npm package from jsDelivr."
+    }
+}
