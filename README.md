@@ -3,7 +3,7 @@
 A Figma and FigJam plugin to search airlines by name, IATA or ICAO code and drop their [Soaring Symbols](https://github.com/soaring-symbols/soaring-symbols) logos, icons and tails into your designs.
 
 > [!NOTE]
-> The plugin is still in development and not yet published to the Figma Community. To try it, build it and import it into the Figma desktop app as described under [Development](#development).
+> The plugin is [in review on the Figma Community](https://www.figma.com/community/plugin/1701522206126108009). Until it is approved, try it by building it and importing it into the Figma desktop app as described under [Development](#development).
 
 - Search 130+ airlines by name, IATA or ICAO code, callsign or slug.
 - Insert a mark by clicking it, or drag it onto the canvas. With a single frame, component or section selected, a clicked mark goes inside it.

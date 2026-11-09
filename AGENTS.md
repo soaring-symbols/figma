@@ -6,7 +6,7 @@ Instructions for AI coding agents working on the Soaring Symbols Figma plugin. H
 
 A Figma and FigJam plugin that searches the [Soaring Symbols](https://github.com/soaring-symbols/soaring-symbols) airlines and inserts their logos, icons and tails as vector layers.
 
-- `manifest.json` — the plugin manifest. `id` is a placeholder (`soaring-symbols-dev`) until the plugin is first published from the Figma app, which assigns the real one; put that in and keep it.
+- `manifest.json` — the plugin manifest. `id` (`1701522206126108009`) was assigned by Figma when the plugin was first published, as [this Community page](https://www.figma.com/community/plugin/1701522206126108009); never change it, or Figma treats the plugin as a new one.
 - `src/code.ts` — the main thread, which owns the document: inserts a mark (into the single selected frame, component or section, else at the viewport center), handles marks dropped from the UI (`figma.on('drop')`) and keeps the settings in `figma.clientStorage`.
 - `src/ui.ts` + `src/ui.html` — the UI iframe: the airline list and search, the per-airline grid of marks, size and mono color controls. It fetches everything; the main thread never touches the network.
 - `src/data.ts` — pure helpers shared by the UI and the tests: data URLs (`DATA_LINE`), search ranking, asset tiles, tinting mono SVGs.

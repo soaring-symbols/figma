@@ -1,6 +1,6 @@
 # Figma Community listing
 
-The text and images to paste into the publish dialog (**Plugins → Development → Manage plugins in development → Publish**). Keep this file in step with what is live on the Community page.
+The text and images to paste into the publish dialog (**Plugins → Development → Manage plugins in development → Publish**). Keep this file in step with what is live on the [Community page](https://www.figma.com/community/plugin/1701522206126108009).
 
 ## Images
 
@@ -46,7 +46,7 @@ Logos and icons are shown for reference. The trademarks belong to their airlines
 
 ## Category
 
-Design tools
+Icon pack
 
 ## Tags
 
