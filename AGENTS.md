@@ -13,6 +13,7 @@ A Figma and FigJam plugin that searches the [Soaring Symbols](https://github.com
 - `src/messages.ts` — the message types between the UI and the main thread, and the default settings.
 - `scripts/build.js` — esbuild: `src/code.ts` → `dist/code.js` (ES2017, for Figma's main-thread engine), and `src/ui.ts` bundled and inlined into `dist/ui.html`, since Figma loads the UI as one HTML string.
 - `test/` — unit tests for `src/data.ts`, run by Node's test runner with type stripping.
+- `store/` — what the Figma Community page shows: `LISTING.md` (the text for the publish dialog), and `icon.png` and `thumbnail.png`, copied from `exports/figma/` in [soaring-symbols/brand](https://github.com/soaring-symbols/brand), where they are rendered; change them there first. Update `LISTING.md` when a feature changes, and the thumbnail when the UI does.
 
 ### Where the data comes from
 
