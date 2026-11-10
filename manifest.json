@@ -7,7 +7,10 @@
     "editorType": ["figma", "figjam"],
     "documentAccess": "dynamic-page",
     "networkAccess": {
-        "allowedDomains": ["https://cdn.jsdelivr.net"],
-        "reasoning": "Loads the airline list and SVG marks of the soaring-symbols npm package from jsDelivr."
+        "allowedDomains": [
+            "https://cdn.jsdelivr.net",
+            "https://data.jsdelivr.com"
+        ],
+        "reasoning": "Loads the airline list and SVG marks of the soaring-symbols npm package from jsDelivr, and asks jsDelivr which release is the latest."
     }
 }

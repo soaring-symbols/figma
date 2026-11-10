@@ -5,8 +5,33 @@ import type { Airline, AssetType } from 'soaring-symbols'
 // breaking 0.3.0 never does. Move this and the soaring-symbols dependency to
 // the next line in the same plugin update.
 export const DATA_LINE = '0.2'
-export const CDN = `https://cdn.jsdelivr.net/npm/soaring-symbols@${DATA_LINE}/dist`
-export const AIRLINES_URL = `${CDN}/airlines.json`
+
+// Asks jsDelivr which release the line points at now, e.g. "0.2.4"
+export const RESOLVE_URL = `https://data.jsdelivr.com/v1/packages/npm/soaring-symbols/resolved?specifier=${DATA_LINE}`
+
+// An exact release in the line, e.g. "0.2.4"
+export const isLineRelease = (version: unknown): version is string =>
+    typeof version === 'string' &&
+    version.startsWith(`${DATA_LINE}.`) &&
+    /^\d+\.\d+\.\d+$/.test(version)
+
+// The release the airline list came from. Files load from that exact
+// release, not from the line: a line URL keeps its address when a release
+// changes the file behind it (a new logo), and the browser cache in Figma,
+// which jsDelivr lets keep a file for 7 days, would go on showing the old
+// one. The line is the fallback when the release isn't known.
+let dataVersion = DATA_LINE
+
+export const setDataVersion = (version?: string): void => {
+    dataVersion = isLineRelease(version) ? version : DATA_LINE
+}
+
+export const cdnBase = (version: string): string =>
+    `https://cdn.jsdelivr.net/npm/soaring-symbols@${version}/dist`
+
+// airlines.json from `release`, or from the line when it's unknown
+export const airlinesUrl = (release?: string): string =>
+    `${cdnBase(isLineRelease(release) ? release : DATA_LINE)}/airlines.json`
 
 const ASSET_TYPES: AssetType[] = ['logo', 'icon', 'tail']
 
@@ -20,7 +45,7 @@ export interface AssetTile {
 }
 
 export const assetUrl = (airline: Airline, variant: string): string =>
-    `${CDN}/assets/${airline.slug}/${variant}.svg`
+    `${cdnBase(dataVersion)}/assets/${airline.slug}/${variant}.svg`
 
 // Whether fetched JSON is a usable airline list: a non-empty array of
 // airlines that each have a slug and assets. Anything else falls back to

@@ -2,16 +2,20 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 import { listAirlines, type Airline } from 'soaring-symbols'
 import {
+    airlinesUrl,
     assetUrl,
-    CDN,
+    cdnBase,
     getAssetTiles,
     isAirlineList,
+    isLineRelease,
     layerName,
     searchAirlines,
+    setDataVersion,
     thumbnailUrl,
     tintSvg,
 } from '../src/data.ts'
 
+const CDN = cdnBase('0.2')
 const airlines = listAirlines()
 const names = (list: Airline[]) => list.map((a) => a.name)
 
@@ -147,5 +151,49 @@ describe('layerName', () => {
         )
         assert.equal(layerName(airline, logo), 'Test Air logo')
         assert.equal(layerName(airline, mono), 'Test Air logo (mono)')
+    })
+})
+
+describe('exact release URLs', () => {
+    const cdn = 'https://cdn.jsdelivr.net/npm/soaring-symbols'
+    const air = fake({
+        assets: { logo: { color: true, mono: false, colors: [] } },
+    })
+
+    it('accepts only exact releases of the line', () => {
+        assert.equal(isLineRelease('0.2.4'), true)
+        for (const version of [
+            '0.2',
+            '0.3.0',
+            '0.2.4-beta',
+            '10.2.4',
+            undefined,
+            24,
+        ]) {
+            assert.equal(isLineRelease(version), false, String(version))
+        }
+    })
+
+    it("loads airlines.json from the release, or the line when it's unknown", () => {
+        assert.equal(airlinesUrl('0.2.4'), `${cdn}@0.2.4/dist/airlines.json`)
+        assert.equal(airlinesUrl(undefined), `${cdn}@0.2/dist/airlines.json`)
+    })
+
+    it('loads files from the release the list came from', () => {
+        setDataVersion('0.2.4')
+        assert.equal(
+            assetUrl(air, 'logo'),
+            `${cdn}@0.2.4/dist/assets/test-air/logo.svg`,
+        )
+        setDataVersion('0.3.0')
+        assert.equal(
+            assetUrl(air, 'logo'),
+            `${cdn}@0.2/dist/assets/test-air/logo.svg`,
+        )
+        setDataVersion()
+        assert.equal(
+            assetUrl(air, 'logo'),
+            `${cdn}@0.2/dist/assets/test-air/logo.svg`,
+        )
     })
 })

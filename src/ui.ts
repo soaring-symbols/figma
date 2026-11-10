@@ -2,13 +2,16 @@
 // or drag it onto the canvas. The main thread (code.ts) does the inserting.
 import { type Airline, listAirlines } from 'soaring-symbols'
 import {
-    AIRLINES_URL,
+    airlinesUrl,
     type AssetTile,
     codesLabel,
     getAssetTiles,
     isAirlineList,
+    isLineRelease,
     layerName,
+    RESOLVE_URL,
     searchAirlines,
+    setDataVersion,
     thumbnailUrl,
     tintSvg,
 } from './data'
@@ -72,17 +75,35 @@ const fetchSvg = (url: string): Promise<string> => {
 const dataUrl = (svg: string) =>
     `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 
-// The latest airlines of the plugin's release line, or the list bundled with
-// the plugin when that can't be loaded or isn't a usable list
+// The release the line points at now, or undefined when jsDelivr can't say
+const resolveRelease = async (): Promise<string | undefined> => {
+    try {
+        const res = await fetch(RESOLVE_URL)
+        if (!res.ok) return undefined
+        const { version } = (await res.json()) as { version?: unknown }
+
+        return isLineRelease(version) ? version : undefined
+    } catch {
+        return undefined
+    }
+}
+
+// The latest airlines of the plugin's release line, read from that exact
+// release, or the list bundled with the plugin when that can't be loaded or
+// isn't a usable list
 const loadAirlines = async (): Promise<void> => {
     try {
-        const res = await fetch(AIRLINES_URL)
+        const release = await resolveRelease()
+        const res = await fetch(airlinesUrl(release))
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const data: unknown = await res.json()
         if (!isAirlineList(data)) throw new Error('unexpected airlines.json')
         airlines = data
+        setDataVersion(release)
     } catch (error) {
         airlines = listAirlines()
+        // The bundled list's files are in every release of the line
+        setDataVersion()
         notice = `Showing the airlines bundled with the plugin; couldn't load the latest list (${String(error)}).`
     }
 }
