@@ -31,7 +31,7 @@ Soaring Symbols puts a curated collection of airline logos, icons and tail desig
 - Click a logo, icon or tail to insert it. With a frame, component or section selected, it goes inside.
 - Or drag it onto the canvas, or into any frame.
 - Pick the size, from 16 to 256 px.
-- Paint monochrome marks in any color, or in the airline's brand color in one click.
+- Paint monochrome marks in any color, or in the airline's primary color in one click.
 - Layers are named after the airline, like "Vietnam Airlines icon (mono)".
 
 **Always up to date**

@@ -33,7 +33,7 @@ const content = $('content')
 const search = $<HTMLInputElement>('search')
 const sizeSelect = $<HTMLSelectElement>('size')
 const monoInput = $<HTMLInputElement>('mono-color')
-const brandButton = $<HTMLButtonElement>('brand-color')
+const primaryButton = $<HTMLButtonElement>('primary-color')
 
 let airlines: Airline[] = []
 let notice = ''
@@ -270,9 +270,11 @@ const showAirline = (airline: Airline) => {
         .filter(Boolean)
         .join(' · ')
 
-    const brand = airline.branding?.primary_color
-    brandButton.hidden = !brand
-    brandButton.style.color = brand ?? ''
+    // The airline's one primary color (branding.primary_color), not its
+    // full palette, so the button says "primary color"
+    const primary = airline.branding?.primary_color
+    primaryButton.hidden = !primary
+    primaryButton.style.color = primary ?? ''
 
     const tiles = getAssetTiles(airline)
     content.replaceChildren(
@@ -328,11 +330,11 @@ monoInput.addEventListener('input', () => {
 monoInput.addEventListener('change', () =>
     saveSettings({ monoColor: monoInput.value }),
 )
-brandButton.addEventListener('click', () => {
-    const brand = current?.branding?.primary_color
-    if (!brand) return
-    monoInput.value = brand
-    saveSettings({ monoColor: brand })
+primaryButton.addEventListener('click', () => {
+    const primary = current?.branding?.primary_color
+    if (!primary) return
+    monoInput.value = primary
+    saveSettings({ monoColor: primary })
     refreshMonoTiles()
 })
 

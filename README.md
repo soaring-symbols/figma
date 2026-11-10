@@ -7,7 +7,7 @@ A Figma and FigJam plugin to search airlines by name, IATA or ICAO code and drop
 
 - Search 130+ airlines by name, IATA or ICAO code, callsign or slug.
 - Insert a mark by clicking it, or drag it onto the canvas. With a single frame, component or section selected, a clicked mark goes inside it.
-- Pick the size of inserted marks (16 to 256 px) and the color of monochrome marks, or use the airline's brand color. Both are remembered.
+- Pick the size of inserted marks (16 to 256 px) and the color of monochrome marks, or use the airline's primary color. Both are remembered.
 - Marks come in as editable vector layers, named after the airline (e.g. "Vietnam Airlines icon (mono)").
 
 ## Development
