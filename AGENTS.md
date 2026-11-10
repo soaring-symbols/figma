@@ -9,7 +9,7 @@ A Figma and FigJam plugin that searches the [Soaring Symbols](https://github.com
 - `manifest.json` — the plugin manifest. `id` (`1701522206126108009`) was assigned by Figma when the plugin was first published, as [this Community page](https://www.figma.com/community/plugin/1701522206126108009); never change it, or Figma treats the plugin as a new one.
 - `src/code.ts` — the main thread, which owns the document: inserts a mark (into the single selected frame, component or section, else at the viewport center), handles marks dropped from the UI (`figma.on('drop')`) and keeps the settings in `figma.clientStorage`.
 - `src/ui.ts` + `src/ui.html` — the UI iframe: the airline list and search, the per-airline grid of marks, size and mono color controls. It fetches everything; the main thread never touches the network.
-- `src/data.ts` — pure helpers shared by the UI and the tests: data URLs (`DATA_LINE`), search ranking, asset tiles, tinting mono SVGs.
+- `src/data.ts` — pure helpers shared by the UI and the tests: data URLs (`DATA_LINE`), search ranking, asset tiles (current ones, and with a `history` entry an older set under `history/<since>/`; `earlierMarks` lists them newest first), tinting mono SVGs.
 - `src/messages.ts` — the message types between the UI and the main thread, and the default settings.
 - `scripts/build.js` — esbuild: `src/code.ts` → `dist/code.js` (ES2017, for Figma's main-thread engine), and `src/ui.ts` bundled and inlined into `dist/ui.html`, since Figma loads the UI as one HTML string.
 - `test/` — unit tests for `src/data.ts`, run by Node's test runner with type stripping.

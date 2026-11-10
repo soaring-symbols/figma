@@ -5,6 +5,7 @@ import {
     airlinesUrl,
     assetUrl,
     cdnBase,
+    earlierMarks,
     getAssetTiles,
     isAirlineList,
     isLineRelease,
@@ -194,6 +195,60 @@ describe('exact release URLs', () => {
         assert.equal(
             assetUrl(air, 'logo'),
             `${cdn}@0.2/dist/assets/test-air/logo.svg`,
+        )
+    })
+})
+
+describe('earlier marks', () => {
+    const info = (color: boolean, mono: boolean) => ({
+        color,
+        mono,
+        colors: [],
+    })
+    const air = fake({
+        name: 'Korean Air',
+        slug: 'korean-air',
+        assets: { logo: info(true, true) },
+        history: [
+            { since: 1969, assets: { logo: info(true, false) } },
+            {
+                since: 1984,
+                assets: { logo: info(true, false), icon: info(true, true) },
+            },
+        ],
+    })
+
+    it('lists them newest first, and none for older data', () => {
+        assert.deepEqual(
+            earlierMarks(air).map((mark) => mark.since),
+            [1984, 1969],
+        )
+        assert.deepEqual(earlierMarks(fake({})), [])
+    })
+
+    it("loads an older mark's files from its history folder", () => {
+        setDataVersion()
+        const [newest] = earlierMarks(air)
+        const tiles = getAssetTiles(air, newest)
+        assert.deepEqual(
+            tiles.map((tile) => [tile.url, tile.since]),
+            [
+                [`${CDN}/assets/korean-air/history/1984/logo.svg`, 1984],
+                [`${CDN}/assets/korean-air/history/1984/icon.svg`, 1984],
+                [`${CDN}/assets/korean-air/history/1984/icon-mono.svg`, 1984],
+            ],
+        )
+        assert.equal(getAssetTiles(air)[0].since, undefined)
+    })
+
+    it('names their layers with the year', () => {
+        const [newest] = earlierMarks(air)
+        const [logo, , iconMono] = getAssetTiles(air, newest)
+        assert.equal(layerName(air, logo), 'Korean Air logo (1984)')
+        assert.equal(layerName(air, iconMono), 'Korean Air icon (1984, mono)')
+        assert.equal(
+            layerName(air, getAssetTiles(air)[1]),
+            'Korean Air logo (mono)',
         )
     })
 })

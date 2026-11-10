@@ -5,6 +5,7 @@ import {
     airlinesUrl,
     type AssetTile,
     codesLabel,
+    earlierMarks,
     getAssetTiles,
     isAirlineList,
     isLineRelease,
@@ -276,19 +277,39 @@ const showAirline = (airline: Airline) => {
     primaryButton.hidden = !primary
     primaryButton.style.color = primary ?? ''
 
+    const grid = (tiles: AssetTile[]) =>
+        el(
+            'div',
+            { className: 'tiles' },
+            ...tiles.map((tile) => tileButton(airline, tile)),
+        )
     const tiles = getAssetTiles(airline)
+    // With older marks, the current ones get a heading of their own above
+    // them, newest first; without, the grid stays as it was
+    const history = earlierMarks(airline)
     content.replaceChildren(
-        tiles.length
-            ? el(
-                  'div',
-                  { className: 'tiles' },
-                  ...tiles.map((tile) => tileButton(airline, tile)),
-              )
-            : el(
-                  'div',
-                  { className: 'empty' },
-                  'No marks for this airline yet.',
-              ),
+        ...(!tiles.length
+            ? [
+                  el(
+                      'div',
+                      { className: 'empty' },
+                      'No marks for this airline yet.',
+                  ),
+              ]
+            : history.length
+              ? [
+                    el('h2', { className: 'section-title' }, 'Current'),
+                    grid(tiles),
+                    ...history.flatMap((mark) => [
+                        el(
+                            'h2',
+                            { className: 'section-title' },
+                            `Introduced ${mark.since}`,
+                        ),
+                        grid(getAssetTiles(airline, mark)),
+                    ]),
+                ]
+              : [grid(tiles)]),
     )
     content.scrollTop = 0
     $('back').focus()
