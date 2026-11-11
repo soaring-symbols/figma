@@ -17,7 +17,7 @@ import {
     tintSvg,
 } from '../src/data.ts'
 
-const CDN = cdnBase('0.2')
+const CDN = cdnBase('0.3')
 const airlines = listAirlines()
 const names = (list: Airline[]) => list.map((a) => a.name)
 
@@ -163,12 +163,13 @@ describe('exact release URLs', () => {
     })
 
     it('accepts only exact releases of the line', () => {
-        assert.equal(isLineRelease('0.2.4'), true)
+        assert.equal(isLineRelease('0.3.0'), true)
         for (const version of [
-            '0.2',
-            '0.3.0',
-            '0.2.4-beta',
-            '10.2.4',
+            '0.3',
+            '0.4.0',
+            '0.3.0-beta',
+            '10.3.0',
+            '0.2.4',
             undefined,
             24,
         ]) {
@@ -177,25 +178,25 @@ describe('exact release URLs', () => {
     })
 
     it("loads airlines.json from the release, or the line when it's unknown", () => {
-        assert.equal(airlinesUrl('0.2.4'), `${cdn}@0.2.4/dist/airlines.json`)
-        assert.equal(airlinesUrl(undefined), `${cdn}@0.2/dist/airlines.json`)
+        assert.equal(airlinesUrl('0.3.0'), `${cdn}@0.3.0/dist/airlines.json`)
+        assert.equal(airlinesUrl(undefined), `${cdn}@0.3/dist/airlines.json`)
     })
 
     it('loads files from the release the list came from', () => {
-        setDataVersion('0.2.4')
+        setDataVersion('0.3.1')
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@0.2.4/dist/assets/test-air/logo.svg`,
+            `${cdn}@0.3.1/dist/assets/test-air/logo.svg`,
         )
-        setDataVersion('0.3.0')
+        setDataVersion('0.4.0')
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@0.2/dist/assets/test-air/logo.svg`,
+            `${cdn}@0.3/dist/assets/test-air/logo.svg`,
         )
         setDataVersion()
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@0.2/dist/assets/test-air/logo.svg`,
+            `${cdn}@0.3/dist/assets/test-air/logo.svg`,
         )
     })
 })
@@ -281,6 +282,15 @@ describe('markTitle', () => {
         assert.equal(
             markTitle(trinity, { since: 2010, assets: {} }),
             'Introduced 2010',
+        )
+    })
+})
+
+describe('searchAirlines by former name', () => {
+    it("finds Trinity Airways by T'way Air, after current-name matches", () => {
+        assert.equal(
+            searchAirlines(airlines, "t'way")[0]?.name,
+            'Trinity Airways',
         )
     })
 })

@@ -1,10 +1,10 @@
 import type { Airline, AssetType, HistoricalMarks } from 'soaring-symbols'
 
-// The npm release line the plugin reads, served by jsDelivr. Every 0.2.x
+// The npm release line the plugin reads, served by jsDelivr. Every 0.3.x
 // release (new airlines, fixed SVGs) arrives without a plugin update; a
-// breaking 0.3.0 never does. Move this and the soaring-symbols dependency to
+// breaking 0.4.0 never does. Move this and the soaring-symbols dependency to
 // the next line in the same plugin update.
-export const DATA_LINE = '0.2'
+export const DATA_LINE = '0.3'
 
 // Asks jsDelivr which release the line points at now, e.g. "0.2.4"
 export const RESOLVE_URL = `https://data.jsdelivr.com/v1/packages/npm/soaring-symbols/resolved?specifier=${DATA_LINE}`
@@ -71,7 +71,8 @@ export const isAirlineList = (data: unknown): data is Airline[] =>
 
 // How well an airline matches a query, lower is better, or -1 for no match.
 // An exact IATA or ICAO code wins, then names that start with the query, then
-// a match anywhere in the name, slug or callsign.
+// a match anywhere in the name, slug or callsign, then a former name of a
+// renamed airline (T'way Air for Trinity Airways).
 const rank = (airline: Airline, q: string): number => {
     const code = q.toUpperCase()
     if (airline.iata === code || airline.icao === code) return 0
@@ -80,11 +81,14 @@ const rank = (airline: Airline, q: string): number => {
     if (name.split(/[\s-]+/).some((word) => word.startsWith(q))) return 2
     const rest = [name, airline.slug, airline.callsign?.toLowerCase() ?? '']
     if (rest.some((field) => field.includes(q))) return 3
+    const former = airline.previous_names ?? []
+    if (former.some((old) => old.toLowerCase().includes(q))) return 4
 
     return -1
 }
 
-// Airlines matching a query by name, IATA or ICAO code, slug or callsign,
+// Airlines matching a query by name, IATA or ICAO code, slug, callsign or
+// former name,
 // best match first; active airlines come before defunct ones at each rank.
 // An empty query lists every airline in catalog order, defunct ones last.
 export const searchAirlines = (
@@ -146,13 +150,13 @@ export const earlierMarks = (airline: Airline): HistoricalMarks[] =>
 // name on it when that was a former name ("T'way Air · 2010–2026"). Releases
 // without `until` and `name` (0.2.4 and before) give the year it came in.
 export const markTitle = (airline: Airline, mark: HistoricalMarks): string => {
-    const { until, name } = mark as HistoricalMarks & {
-        until?: number
-        name?: string
-    }
-    const years = until ? `${mark.since}–${until}` : `Introduced ${mark.since}`
+    const years = mark.until
+        ? `${mark.since}–${mark.until}`
+        : `Introduced ${mark.since}`
 
-    return name && name !== airline.name ? `${name} · ${years}` : years
+    return mark.name && mark.name !== airline.name
+        ? `${mark.name} · ${years}`
+        : years
 }
 
 // The file to show next to an airline in the list: its icon, else its logo,

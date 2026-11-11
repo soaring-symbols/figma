@@ -5,7 +5,7 @@
     "": {
       "name": "soaring-symbols-figma",
       "dependencies": {
-        "soaring-symbols": "^0.2.4",
+        "soaring-symbols": "^0.3.0",
       },
       "devDependencies": {
         "@eslint/js": "^10.0.1",
@@ -254,7 +254,7 @@
 
     "shebang-regex": ["shebang-regex@3.0.0", "", {}, "sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A=="],
 
-    "soaring-symbols": ["soaring-symbols@0.2.4", "", {}, "sha512-S7NXXnInBHjbiNC+JgwLR1sRsa15y+cuA264iD3J+J8Hzj/Pl1VpR+NZHqxJzNRtgfSwCzJhK0mrcjy/TidcqQ=="],
+    "soaring-symbols": ["soaring-symbols@0.3.0", "", {}, "sha512-IXP9HO8bF4qurDAANKDDquRadWAtM8GF8s1iXTi0H8JrkYlhigDPn2c+w+DpAY8XnsUAPzCfNtW4DOUE40qDQQ=="],
 
     "tinyglobby": ["tinyglobby@0.2.17", "", { "dependencies": { "fdir": "^6.5.0", "picomatch": "^4.0.4" } }, "sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g=="],
 

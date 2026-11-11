@@ -29,6 +29,6 @@
         "typescript-eslint": "^8.72.1"
     },
     "dependencies": {
-        "soaring-symbols": "^0.2.4"
+        "soaring-symbols": "^0.3.0"
     }
 }
