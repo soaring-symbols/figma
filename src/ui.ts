@@ -6,6 +6,7 @@ import {
     type AssetTile,
     codesLabel,
     earlierMarks,
+    markTitle,
     getAssetTiles,
     isAirlineList,
     isLineRelease,
@@ -304,7 +305,7 @@ const showAirline = (airline: Airline) => {
                         el(
                             'h2',
                             { className: 'section-title' },
-                            `Introduced ${mark.since}`,
+                            markTitle(airline, mark),
                         ),
                         grid(getAssetTiles(airline, mark)),
                     ]),
