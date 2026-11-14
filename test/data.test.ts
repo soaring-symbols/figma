@@ -1,25 +1,36 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { listAirlines, type Airline } from 'soaring-symbols'
+import {
+    listAirlines,
+    listAlliances,
+    type Airline,
+    type Alliance,
+} from 'soaring-symbols'
 import {
     airlinesUrl,
+    allianceLabel,
+    alliancesUrl,
     assetUrl,
     cdnBase,
     earlierMarks,
     getAssetTiles,
+    hasMarks,
+    isAirline,
     isAirlineList,
+    isAllianceList,
     isLineRelease,
     layerName,
     markTitle,
     searchAirlines,
+    searchAlliances,
     setDataVersion,
     thumbnailUrl,
     tintSvg,
 } from '../src/data.ts'
 
-const CDN = cdnBase('0.3')
+const CDN = cdnBase('0.4')
 const airlines = listAirlines()
-const names = (list: Airline[]) => list.map((a) => a.name)
+const names = (list: { name: string }[]) => list.map((a) => a.name)
 
 const fake = (overrides: Partial<Airline>): Airline => ({
     name: 'Test Air',
@@ -163,13 +174,13 @@ describe('exact release URLs', () => {
     })
 
     it('accepts only exact releases of the line', () => {
-        assert.equal(isLineRelease('0.3.0'), true)
+        assert.equal(isLineRelease('0.4.0'), true)
         for (const version of [
-            '0.3',
-            '0.4.0',
-            '0.3.0-beta',
-            '10.3.0',
-            '0.2.4',
+            '0.4',
+            '0.3.3',
+            '0.5.0',
+            '0.4.0-beta',
+            '10.4.0',
             undefined,
             24,
         ]) {
@@ -178,25 +189,25 @@ describe('exact release URLs', () => {
     })
 
     it("loads airlines.json from the release, or the line when it's unknown", () => {
-        assert.equal(airlinesUrl('0.3.0'), `${cdn}@0.3.0/dist/airlines.json`)
-        assert.equal(airlinesUrl(undefined), `${cdn}@0.3/dist/airlines.json`)
+        assert.equal(airlinesUrl('0.4.0'), `${cdn}@0.4.0/dist/airlines.json`)
+        assert.equal(airlinesUrl(undefined), `${cdn}@0.4/dist/airlines.json`)
     })
 
     it('loads files from the release the list came from', () => {
-        setDataVersion('0.3.1')
+        setDataVersion('0.4.1')
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@0.3.1/dist/assets/test-air/logo.svg`,
+            `${cdn}@0.4.1/dist/assets/test-air/logo.svg`,
         )
-        setDataVersion('0.4.0')
+        setDataVersion('0.3.3')
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@0.3/dist/assets/test-air/logo.svg`,
+            `${cdn}@0.4/dist/assets/test-air/logo.svg`,
         )
         setDataVersion()
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@0.3/dist/assets/test-air/logo.svg`,
+            `${cdn}@0.4/dist/assets/test-air/logo.svg`,
         )
     })
 })
@@ -264,7 +275,7 @@ describe('markTitle', () => {
                 until: 2026,
                 name: "T'way Air",
                 assets: {},
-            } as never),
+            }),
             "T'way Air · 2010–2026",
         )
         assert.equal(
@@ -273,7 +284,7 @@ describe('markTitle', () => {
                 until: 2026,
                 name: 'Trinity Airways',
                 assets: {},
-            } as never),
+            }),
             '2010–2026',
         )
     })
@@ -292,5 +303,110 @@ describe('searchAirlines by former name', () => {
             searchAirlines(airlines, "t'way")[0]?.name,
             'Trinity Airways',
         )
+    })
+})
+
+describe('alliances', () => {
+    const alliances = listAlliances()
+    const ally = (overrides: Partial<Alliance>): Alliance => ({
+        name: 'Test Alliance',
+        slug: 'test-alliance',
+        assets: {},
+        ...overrides,
+    })
+    const skyteam = ally({
+        name: 'SkyTeam',
+        slug: 'skyteam',
+        founded: 2000,
+        assets: {
+            icon: { color: true, mono: true, colors: ['#1a3576'] },
+            logo: { color: true, mono: false, colors: [] },
+        },
+    })
+
+    it('loads alliances.json from the same release as the airlines', () => {
+        const cdn = 'https://cdn.jsdelivr.net/npm/soaring-symbols'
+        assert.equal(alliancesUrl('0.4.0'), `${cdn}@0.4.0/dist/alliances.json`)
+        assert.equal(alliancesUrl(undefined), `${cdn}@0.4/dist/alliances.json`)
+    })
+
+    it('accepts an alliance list, alliances without marks included', () => {
+        assert.equal(isAllianceList(alliances), true)
+        assert.equal(isAllianceList([ally({})]), true)
+        for (const bad of [[], {}, null, [{ name: 'X' }], [{ slug: 'x' }]]) {
+            assert.equal(isAllianceList(bad), false, JSON.stringify(bad))
+        }
+    })
+
+    it('tells airlines and alliances apart', () => {
+        assert.equal(isAirline(fake({})), true)
+        assert.equal(isAirline(skyteam), false)
+    })
+
+    it('gives an alliance icon tiles first, from alliances/, and no tail', () => {
+        setDataVersion()
+        assert.deepEqual(
+            getAssetTiles(skyteam).map((t) => [t.variant, t.url]),
+            [
+                ['icon', `${CDN}/alliances/skyteam/icon.svg`],
+                ['icon-mono', `${CDN}/alliances/skyteam/icon-mono.svg`],
+                ['logo', `${CDN}/alliances/skyteam/logo.svg`],
+            ],
+        )
+        assert.equal(thumbnailUrl(skyteam), `${CDN}/alliances/skyteam/icon.svg`)
+        assert.equal(
+            assetUrl(skyteam, 'icon', { since: 1999, assets: {} }),
+            `${CDN}/alliances/skyteam/history/1999/icon.svg`,
+        )
+        assert.equal(thumbnailUrl(ally({})), undefined)
+    })
+
+    it('names an inserted alliance mark after the alliance', () => {
+        const [icon, mono] = getAssetTiles(skyteam)
+        assert.equal(layerName(skyteam, icon!), 'SkyTeam icon')
+        assert.equal(layerName(skyteam, mono!), 'SkyTeam icon (mono)')
+    })
+
+    it('searches only alliances with marks, best match first', () => {
+        const value = ally({
+            name: 'Value Alliance',
+            slug: 'value-alliance',
+            defunct: true,
+            assets: skyteam.assets,
+        })
+        const star = ally({
+            name: 'Star Alliance',
+            slug: 'star-alliance',
+            assets: skyteam.assets,
+        })
+        const bare = ally({ name: 'Vanilla Alliance', slug: 'vanilla' })
+        const list = [skyteam, star, value, bare]
+        assert.deepEqual(names(searchAlliances(list, '')), [
+            'SkyTeam',
+            'Star Alliance',
+            'Value Alliance',
+        ])
+        assert.deepEqual(names(searchAlliances(list, 'alli')), [
+            'Star Alliance',
+            'Value Alliance',
+        ])
+        assert.deepEqual(names(searchAlliances(list, 'sky')), ['SkyTeam'])
+        assert.deepEqual(searchAlliances(list, 'vanilla'), [])
+        assert.equal(hasMarks(bare), false)
+    })
+
+    it('lists the bundled alliances that have marks', () => {
+        const withMarks = names(searchAlliances(alliances, ''))
+        assert.ok(withMarks.includes('SkyTeam'), withMarks.join(', '))
+        assert.ok(!withMarks.includes('Vanilla Alliance'))
+    })
+
+    it('describes an alliance with its years', () => {
+        assert.equal(allianceLabel(skyteam), 'Airline alliance · 2000')
+        assert.equal(
+            allianceLabel(ally({ founded: 2016, ceased: 2023, defunct: true })),
+            'Airline alliance · 2016–2023 · Disbanded',
+        )
+        assert.equal(allianceLabel(ally({})), 'Airline alliance')
     })
 })
