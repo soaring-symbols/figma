@@ -108,7 +108,7 @@ const resolveRelease = async (): Promise<string | undefined> => {
 const fetchAlliances = async (release?: string): Promise<Alliance[]> => {
     try {
         const res = await fetch(alliancesUrl(release))
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        if (!res.ok) return listAlliances()
         const data: unknown = await res.json()
 
         return isAllianceList(data) ? data : listAlliances()
@@ -179,16 +179,15 @@ const ownerRow = (owner: MarkOwner) => {
     return row
 }
 
-// What the list shows for the search, in order: alliances with marks that
-// match, then airlines
-const searchResults = (): MarkOwner[] => [
-    ...searchAlliances(alliances, search.value),
-    ...searchAirlines(airlines, search.value),
-]
+// What the list shows for the search: alliances with marks that match, then
+// airlines
+const searchResults = () => ({
+    alliances: searchAlliances(alliances, search.value),
+    airlines: searchAirlines(airlines, search.value),
+})
 
 const renderList = () => {
-    const matchingAlliances = searchAlliances(alliances, search.value)
-    const results = searchAirlines(airlines, search.value)
+    const { alliances: matchingAlliances, airlines: results } = searchResults()
     content.replaceChildren()
     if (notice) content.append(el('div', { className: 'notice' }, notice))
     if (!airlines.length) {
@@ -426,7 +425,8 @@ search.addEventListener('keydown', (event) => {
     if (event.key !== 'Enter') return
     // Otherwise the same key press clicks the back button, which takes focus
     event.preventDefault()
-    const [first] = searchResults()
+    const found = searchResults()
+    const first: MarkOwner | undefined = found.alliances[0] ?? found.airlines[0]
     if (first) showOwner(first)
 })
 $('back').addEventListener('click', showList)

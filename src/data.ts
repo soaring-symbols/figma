@@ -81,10 +81,11 @@ export const assetUrl = (
 ): string =>
     `${cdnBase(dataVersion)}/${markRoot(owner)}/${owner.slug}${mark ? `/history/${mark.since}` : ''}/${variant}.svg`
 
-// Whether fetched JSON is a usable airline list: a non-empty array of
-// airlines that each have a slug and assets. Anything else falls back to
-// the list bundled with the plugin.
-export const isAirlineList = (data: unknown): data is Airline[] =>
+// Whether fetched JSON is a usable airline or alliance list: a non-empty
+// array of entries that each have a name, a slug and assets (empty for an
+// alliance without marks yet). Anything else falls back to the list bundled
+// with the plugin.
+const isEntryList = (data: unknown): boolean =>
     Array.isArray(data) &&
     data.length > 0 &&
     data.every(
@@ -95,18 +96,47 @@ export const isAirlineList = (data: unknown): data is Airline[] =>
             a.assets !== null,
     )
 
-// Whether fetched JSON is a usable alliance list: a non-empty array of
-// alliances with a name, a slug and assets (empty until it has marks)
+export const isAirlineList = (data: unknown): data is Airline[] =>
+    isEntryList(data)
+
 export const isAllianceList = (data: unknown): data is Alliance[] =>
-    Array.isArray(data) &&
-    data.length > 0 &&
-    data.every(
-        (a) =>
-            typeof a?.slug === 'string' &&
-            typeof a?.name === 'string' &&
-            typeof a?.assets === 'object' &&
-            a.assets !== null,
-    )
+    isEntryList(data)
+
+// How well a name matches a query, lower is better, or -1: names that start
+// with the query, then any word that does, then a match anywhere
+const nameRank = (name: string, q: string): number => {
+    const lower = name.toLowerCase()
+    if (lower.startsWith(q)) return 1
+    if (lower.split(/[\s-]+/).some((word) => word.startsWith(q))) return 2
+
+    return lower.includes(q) ? 3 : -1
+}
+
+// The entries a rank lets through, best first; active ones before defunct
+// ones at each rank, then catalog order. An empty query keeps them all.
+const rankEntries = <T extends { defunct?: boolean }>(
+    entries: T[],
+    query: string,
+    rankOf: (entry: T, q: string) => number,
+): T[] => {
+    const q = query.trim().toLowerCase()
+
+    return entries
+        .map((entry, index) => ({
+            entry,
+            index,
+            score: q ? rankOf(entry, q) : 0,
+        }))
+        .filter(({ score }) => score >= 0)
+        .sort(
+            (a, b) =>
+                a.score - b.score ||
+                Number(Boolean(a.entry.defunct)) -
+                    Number(Boolean(b.entry.defunct)) ||
+                a.index - b.index,
+        )
+        .map(({ entry }) => entry)
+}
 
 // How well an airline matches a query, lower is better, or -1 for no match.
 // An exact IATA or ICAO code wins, then names that start with the query, then
@@ -115,10 +145,9 @@ export const isAllianceList = (data: unknown): data is Alliance[] =>
 const rank = (airline: Airline, q: string): number => {
     const code = q.toUpperCase()
     if (airline.iata === code || airline.icao === code) return 0
-    const name = airline.name.toLowerCase()
-    if (name.startsWith(q)) return 1
-    if (name.split(/[\s-]+/).some((word) => word.startsWith(q))) return 2
-    const rest = [name, airline.slug, airline.callsign?.toLowerCase() ?? '']
+    const byName = nameRank(airline.name, q)
+    if (byName > 0) return byName
+    const rest = [airline.slug, airline.callsign?.toLowerCase() ?? '']
     if (rest.some((field) => field.includes(q))) return 3
     const former = (airline.former ?? []).flatMap((item) =>
         item.name ? [item.name] : [],
@@ -132,29 +161,8 @@ const rank = (airline: Airline, q: string): number => {
 // former name,
 // best match first; active airlines come before defunct ones at each rank.
 // An empty query lists every airline in catalog order, defunct ones last.
-export const searchAirlines = (
-    airlines: Airline[],
-    query: string,
-): Airline[] => {
-    const q = query.trim().toLowerCase()
-    const scored = airlines
-        .map((airline, index) => ({
-            airline,
-            index,
-            score: q ? rank(airline, q) : 0,
-        }))
-        .filter(({ score }) => score >= 0)
-
-    scored.sort(
-        (a, b) =>
-            a.score - b.score ||
-            Number(Boolean(a.airline.defunct)) -
-                Number(Boolean(b.airline.defunct)) ||
-            a.index - b.index,
-    )
-
-    return scored.map(({ airline }) => airline)
-}
+export const searchAirlines = (airlines: Airline[], query: string): Airline[] =>
+    rankEntries(airlines, query, rank)
 
 // The alliances that have marks and match a query by name or slug, best
 // match first (names that start with it, then any word, then anywhere),
@@ -163,38 +171,16 @@ export const searchAirlines = (
 export const searchAlliances = (
     alliances: Alliance[],
     query: string,
-): Alliance[] => {
-    const q = query.trim().toLowerCase()
-    const rankOf = (alliance: Alliance) => {
-        if (!q) return 0
-        const name = alliance.name.toLowerCase()
-        if (name.startsWith(q)) return 1
-        if (name.split(/[\s-]+/).some((word) => word.startsWith(q))) return 2
-        if (name.includes(q) || alliance.slug.includes(q)) return 3
+): Alliance[] =>
+    rankEntries(alliances.filter(hasMarks), query, (alliance, q) => {
+        const byName = nameRank(alliance.name, q)
 
-        return -1
-    }
-
-    return alliances
-        .map((alliance, index) => ({
-            alliance,
-            index,
-            score: rankOf(alliance),
-        }))
-        .filter(({ alliance, score }) => score >= 0 && hasMarks(alliance))
-        .sort(
-            (a, b) =>
-                a.score - b.score ||
-                Number(Boolean(a.alliance.defunct)) -
-                    Number(Boolean(b.alliance.defunct)) ||
-                a.index - b.index,
-        )
-        .map(({ alliance }) => alliance)
-}
+        return byName > 0 || !alliance.slug.includes(q) ? byName : 3
+    })
 
 // Whether an airline or alliance ships any mark at all
 export const hasMarks = (owner: MarkOwner): boolean =>
-    getAssetTiles(owner).length > 0
+    Object.values(owner.assets).some(Boolean)
 
 // A tile for each file the airline or alliance ships: the color version
 // and, when it exists, the -mono one (always there for single-color marks).
