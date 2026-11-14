@@ -25,6 +25,7 @@ Soaring Symbols puts a curated collection of airline logos, icons and tail desig
 
 - Search by name, IATA code (VN), ICAO code (HVN), callsign or slug.
 - Every airline shows its codes, country and alliance; airlines that have ceased operations are marked.
+- Alliances are there too: search oneworld, SkyTeam or Star Alliance and insert their icons the same way.
 
 **Use its marks**
 
