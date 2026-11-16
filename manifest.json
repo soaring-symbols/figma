@@ -11,6 +11,6 @@
             "https://cdn.jsdelivr.net",
             "https://data.jsdelivr.com"
         ],
-        "reasoning": "Loads the airline list and SVG marks of the soaring-symbols npm package from jsDelivr, and asks jsDelivr which release is the latest."
+        "reasoning": "Loads the airline and alliance lists and SVG marks of the soaring-symbols npm package from jsDelivr, and asks jsDelivr which release is the latest."
     }
 }
