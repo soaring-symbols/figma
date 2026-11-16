@@ -15,16 +15,17 @@ Soaring Symbols
 
 ## Tagline
 
-Airline logos, icons and tails as vectors: search by name, IATA or ICAO code, then click or drag.
+Airline and alliance logos, icons and tails as vectors: search by name or code, then click or drag.
 
 ## Description
 
-Soaring Symbols puts a curated collection of airline logos, icons and tail designs into Figma and FigJam, as clean, editable vector layers.
+Soaring Symbols puts a curated collection of airline logos, icons and tail designs into Figma and FigJam, as clean, editable vector layers, along with the marks of the airline alliances.
 
 **Find an airline**
 
 - Search by name, IATA code (VN), ICAO code (HVN), callsign or slug.
 - Every airline shows its codes, country and alliance; airlines that have ceased operations are marked.
+- Alliances are there too: search oneworld, SkyTeam or Star Alliance and insert their icons the same way.
 
 **Use its marks**
 
@@ -37,7 +38,7 @@ Soaring Symbols puts a curated collection of airline logos, icons and tail desig
 
 **Always up to date**
 
-The marks come from the open-source Soaring Symbols collection (MIT), so new airlines and fixed SVGs show up without a plugin update.
+The marks come from the open-source Soaring Symbols collection (MIT), so new airlines, alliances and fixed SVGs show up without a plugin update.
 
 - Website: https://soaringsymbols.org
 - Source: https://github.com/soaring-symbols/figma
@@ -51,7 +52,7 @@ Icon pack
 
 ## Tags
 
-airline, airlines, aviation, logos, icons, brand, travel, flight, svg, vector, IATA, ICAO
+airline, airlines, alliance, aviation, logos, icons, brand, travel, flight, svg, vector, IATA, ICAO
 
 ## Support contact
 
@@ -61,4 +62,4 @@ https://github.com/soaring-symbols/figma/issues
 
 Asked for in the publish form and declared in `manifest.json`:
 
-> Loads the airline list and SVG marks of the soaring-symbols npm package from jsDelivr (cdn.jsdelivr.net). Nothing about the user or their files is sent.
+> Loads the airline and alliance lists and SVG marks of the soaring-symbols npm package from jsDelivr (cdn.jsdelivr.net), and asks jsDelivr which release is the latest (data.jsdelivr.com). Nothing about the user or their files is sent.
