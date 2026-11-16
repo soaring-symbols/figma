@@ -32,4 +32,4 @@ In the Figma desktop app, choose **Plugins → Development → Import plugin fro
 
 ## License
 
-The plugin's code is [MIT](LICENSE). The airline marks are trademarks of their owners; see the [Soaring Symbols README](https://github.com/soaring-symbols/soaring-symbols#readme).
+The plugin's code is [MIT](LICENSE). The airline marks are trademarks of their owners; read the package's [Disclaimer](https://github.com/soaring-symbols/soaring-symbols/blob/main/DISCLAIMER.md) before using them.
