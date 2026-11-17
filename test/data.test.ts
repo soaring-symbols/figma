@@ -13,6 +13,7 @@ import {
     alliancesUrl,
     assetUrl,
     cdnBase,
+    DATA_LINE,
     earlierMarks,
     getAssetTiles,
     hasMarks,
@@ -29,7 +30,14 @@ import {
     tintSvg,
 } from '../src/data.ts'
 
-const CDN = cdnBase('0.5')
+const CDN = cdnBase(DATA_LINE)
+
+// Releases of the line the plugin reads, and of other lines, so moving
+// DATA_LINE to a new line needs no change here
+const [major, minor] = DATA_LINE.split('.').map(Number)
+const release = (patch: number) => `${DATA_LINE}.${patch}`
+const nextLine = `${major}.${minor + 1}.0`
+const earlierLine = `${major}.${Math.max(minor - 1, 0)}.9`
 const airlines = listAirlines()
 const names = (list: { name: string }[]) => list.map((a) => a.name)
 
@@ -237,13 +245,13 @@ describe('exact release URLs', () => {
     })
 
     it('accepts only exact releases of the line', () => {
-        assert.equal(isLineRelease('0.5.0'), true)
+        assert.equal(isLineRelease(release(0)), true)
         for (const version of [
-            '0.5',
-            '0.4.1',
-            '0.6.0',
-            '0.5.0-beta',
-            '10.5.0',
+            DATA_LINE,
+            earlierLine,
+            nextLine,
+            `${release(0)}-beta`,
+            `1${release(0)}`,
             undefined,
             24,
         ]) {
@@ -252,25 +260,31 @@ describe('exact release URLs', () => {
     })
 
     it("loads airlines.json from the release, or the line when it's unknown", () => {
-        assert.equal(airlinesUrl('0.5.0'), `${cdn}@0.5.0/dist/airlines.json`)
-        assert.equal(airlinesUrl(undefined), `${cdn}@0.5/dist/airlines.json`)
+        assert.equal(
+            airlinesUrl(release(0)),
+            `${cdn}@${release(0)}/dist/airlines.json`,
+        )
+        assert.equal(
+            airlinesUrl(undefined),
+            `${cdn}@${DATA_LINE}/dist/airlines.json`,
+        )
     })
 
     it('loads files from the release the list came from', () => {
-        setDataVersion('0.5.1')
+        setDataVersion(release(1))
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@0.5.1/dist/assets/test-air/logo.svg`,
+            `${cdn}@${release(1)}/dist/assets/test-air/logo.svg`,
         )
-        setDataVersion('0.4.1')
+        setDataVersion(earlierLine)
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@0.5/dist/assets/test-air/logo.svg`,
+            `${cdn}@${DATA_LINE}/dist/assets/test-air/logo.svg`,
         )
         setDataVersion()
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@0.5/dist/assets/test-air/logo.svg`,
+            `${cdn}@${DATA_LINE}/dist/assets/test-air/logo.svg`,
         )
     })
 })
@@ -389,8 +403,14 @@ describe('alliances', () => {
 
     it('loads alliances.json from the same release as the airlines', () => {
         const cdn = 'https://cdn.jsdelivr.net/npm/soaring-symbols'
-        assert.equal(alliancesUrl('0.5.0'), `${cdn}@0.5.0/dist/alliances.json`)
-        assert.equal(alliancesUrl(undefined), `${cdn}@0.5/dist/alliances.json`)
+        assert.equal(
+            alliancesUrl(release(0)),
+            `${cdn}@${release(0)}/dist/alliances.json`,
+        )
+        assert.equal(
+            alliancesUrl(undefined),
+            `${cdn}@${DATA_LINE}/dist/alliances.json`,
+        )
     })
 
     it('accepts an alliance list, alliances without marks included', () => {
