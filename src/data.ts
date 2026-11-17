@@ -42,7 +42,11 @@ export const airlinesUrl = (release?: string): string =>
 export const alliancesUrl = (release?: string): string =>
     `${cdnBase(isLineRelease(release) ? release : DATA_LINE)}/alliances.json`
 
-const ASSET_TYPES: AssetType[] = ['logo', 'icon', 'tail']
+// The mark types an airline may have, in grid order. logo-stacked, its
+// vertical lockup beside the horizontal logo, came in the 0.5 line; spelled
+// out until the bundled dependency's AssetType has it.
+export type MarkType = AssetType | 'logo-stacked'
+const ASSET_TYPES: MarkType[] = ['logo', 'logo-stacked', 'icon', 'tail']
 // Alliances have no tail, and show their symbol far more often than a logo
 // with their name, so the icon comes first
 const ALLIANCE_TYPES = ['icon', 'logo'] as const
@@ -52,7 +56,7 @@ const ALLIANCE_TYPES = ['icon', 'logo'] as const
 export type MarkOwner = Airline | Alliance
 
 export interface AssetTile {
-    type: AssetType
+    type: MarkType
     /** File name without extension, e.g. "logo" or "logo-mono". */
     variant: string
     url: string
@@ -200,7 +204,7 @@ export const hasMarks = (owner: MarkOwner): boolean =>
 // have a version for dark backgrounds; spelled out until the bundled
 // dependency moves there
 type AssetsWithDark = Partial<
-    Record<AssetType, { color?: boolean; mono?: boolean; dark?: boolean }>
+    Record<MarkType, { color?: boolean; mono?: boolean; dark?: boolean }>
 >
 
 // A tile for each file the airline or alliance ships: the color version,
@@ -274,6 +278,10 @@ const HEX = /^#[0-9a-f]{6}$/i
 export const tintSvg = (svg: string, color: string): string =>
     HEX.test(color) ? svg.replaceAll(/currentColor/gi, color) : svg
 
+// A mark type in words: "logo", or "stacked logo" for logo-stacked
+export const typeLabel = (type: MarkType): string =>
+    type === 'logo-stacked' ? 'stacked logo' : type
+
 // The layer name of an inserted mark, e.g. "Vietnam Airlines logo (mono)",
 // "SkyTeam icon", "Ryanair logo (dark)", or for an older one "Sun PhuQuoc
 // Airways logo (2025, mono)"
@@ -282,7 +290,7 @@ export const layerName = (owner: MarkOwner, tile: AssetTile): string => {
         Boolean,
     )
 
-    return `${owner.name} ${tile.type}${notes.length ? ` (${notes.join(', ')})` : ''}`
+    return `${owner.name} ${typeLabel(tile.type)}${notes.length ? ` (${notes.join(', ')})` : ''}`
 }
 
 export const codesLabel = (airline: Airline): string =>

@@ -28,6 +28,7 @@ import {
     setDataVersion,
     thumbnailUrl,
     tintSvg,
+    typeLabel,
 } from './data'
 import {
     DEFAULT_SETTINGS,
@@ -239,7 +240,7 @@ const tileButton = (owner: MarkOwner, tile: AssetTile) => {
     const label = el(
         'span',
         { className: 'secondary' },
-        `${tile.type[0].toUpperCase()}${tile.type.slice(1)}${tile.mono ? ' · mono' : ''}${tile.dark ? ' · dark' : ''}`,
+        `${typeLabel(tile.type)[0].toUpperCase()}${typeLabel(tile.type).slice(1)}${tile.mono ? ' · mono' : ''}${tile.dark ? ' · dark' : ''}`,
     )
     const button = el(
         'button',

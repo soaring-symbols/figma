@@ -151,6 +151,29 @@ describe('getAssetTiles', () => {
         assert.equal(layerName(airline, tiles[2]), 'Test Air logo (dark)')
     })
 
+    it('lists a stacked logo after the logo', () => {
+        const airline = fake({
+            assets: {
+                icon: { color: true, mono: false, colors: [] },
+                'logo-stacked': { color: true, mono: true, colors: [] },
+                logo: { color: true, mono: false, colors: [] },
+            },
+        } as Partial<Airline>)
+        const tiles = getAssetTiles(airline)
+        assert.deepEqual(
+            tiles.map((t) => t.variant),
+            ['logo', 'logo-stacked', 'logo-stacked-mono', 'icon'],
+        )
+        assert.equal(
+            tiles[2].url,
+            `${CDN}/assets/test-air/logo-stacked-mono.svg`,
+        )
+        assert.equal(
+            layerName(airline, tiles[2]),
+            'Test Air stacked logo (mono)',
+        )
+    })
+
     it('gives every bundled airline at least one tile', () => {
         for (const airline of airlines) {
             assert.ok(getAssetTiles(airline).length > 0, airline.name)
