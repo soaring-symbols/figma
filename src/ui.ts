@@ -239,7 +239,7 @@ const tileButton = (owner: MarkOwner, tile: AssetTile) => {
     const label = el(
         'span',
         { className: 'secondary' },
-        `${tile.type[0].toUpperCase()}${tile.type.slice(1)}${tile.mono ? ' · mono' : ''}`,
+        `${tile.type[0].toUpperCase()}${tile.type.slice(1)}${tile.mono ? ' · mono' : ''}${tile.dark ? ' · dark' : ''}`,
     )
     const button = el(
         'button',
@@ -264,6 +264,7 @@ const tileButton = (owner: MarkOwner, tile: AssetTile) => {
         }
     }
     button.dataset.mono = String(tile.mono)
+    button.dataset.dark = String(tile.dark)
     button.addEventListener('refresh', refresh)
     refresh()
 

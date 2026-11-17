@@ -7,6 +7,7 @@ import {
     type Alliance,
 } from 'soaring-symbols'
 import {
+    aliasNames,
     airlinesUrl,
     allianceLabel,
     alliancesUrl,
@@ -28,7 +29,7 @@ import {
     tintSvg,
 } from '../src/data.ts'
 
-const CDN = cdnBase('0.4')
+const CDN = cdnBase('0.5')
 const airlines = listAirlines()
 const names = (list: { name: string }[]) => list.map((a) => a.name)
 
@@ -73,6 +74,26 @@ describe('searchAirlines', () => {
         ])
     })
 
+    it('matches an alias as it matches the name', () => {
+        const swiss = fake({
+            name: 'Swiss International Air Lines',
+            slug: 'swiss-international-air-lines',
+            iata: 'LX',
+            aliases: [{ name: 'SWISS', slug: 'swiss' }],
+        } as Partial<Airline>)
+        const list = [
+            fake({ name: 'Air Swisslike', slug: 'air-swisslike', iata: 'S1' }),
+            swiss,
+        ]
+        // Its alias starts with the query, the other only has it in a word
+        assert.deepEqual(names(searchAirlines(list, 'swiss')), [
+            'Swiss International Air Lines',
+            'Air Swisslike',
+        ])
+        assert.deepEqual(aliasNames(swiss), ['SWISS'])
+        assert.deepEqual(aliasNames(fake({})), [])
+    })
+
     it('matches the callsign and slug', () => {
         const list = [fake({ callsign: 'SKY HOPPER' })]
         assert.equal(searchAirlines(list, 'hopper').length, 1)
@@ -109,6 +130,25 @@ describe('getAssetTiles', () => {
             getAssetTiles(airline)[1].url,
             `${CDN}/assets/test-air/logo-mono.svg`,
         )
+    })
+
+    it('adds a dark tile for a mark with a version for dark backgrounds', () => {
+        const airline = fake({
+            assets: {
+                logo: { color: true, mono: true, dark: true, colors: [] },
+            },
+        } as Partial<Airline>)
+        const tiles = getAssetTiles(airline)
+        assert.deepEqual(
+            tiles.map((t) => [t.variant, t.mono, t.dark]),
+            [
+                ['logo', false, false],
+                ['logo-mono', true, false],
+                ['logo-dark', false, true],
+            ],
+        )
+        assert.equal(tiles[2].url, `${CDN}/assets/test-air/logo-dark.svg`)
+        assert.equal(layerName(airline, tiles[2]), 'Test Air logo (dark)')
     })
 
     it('gives every bundled airline at least one tile', () => {
@@ -174,13 +214,13 @@ describe('exact release URLs', () => {
     })
 
     it('accepts only exact releases of the line', () => {
-        assert.equal(isLineRelease('0.4.0'), true)
+        assert.equal(isLineRelease('0.5.0'), true)
         for (const version of [
-            '0.4',
-            '0.3.3',
-            '0.5.0',
-            '0.4.0-beta',
-            '10.4.0',
+            '0.5',
+            '0.4.1',
+            '0.6.0',
+            '0.5.0-beta',
+            '10.5.0',
             undefined,
             24,
         ]) {
@@ -189,25 +229,25 @@ describe('exact release URLs', () => {
     })
 
     it("loads airlines.json from the release, or the line when it's unknown", () => {
-        assert.equal(airlinesUrl('0.4.0'), `${cdn}@0.4.0/dist/airlines.json`)
-        assert.equal(airlinesUrl(undefined), `${cdn}@0.4/dist/airlines.json`)
+        assert.equal(airlinesUrl('0.5.0'), `${cdn}@0.5.0/dist/airlines.json`)
+        assert.equal(airlinesUrl(undefined), `${cdn}@0.5/dist/airlines.json`)
     })
 
     it('loads files from the release the list came from', () => {
+        setDataVersion('0.5.1')
+        assert.equal(
+            assetUrl(air, 'logo'),
+            `${cdn}@0.5.1/dist/assets/test-air/logo.svg`,
+        )
         setDataVersion('0.4.1')
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@0.4.1/dist/assets/test-air/logo.svg`,
-        )
-        setDataVersion('0.3.3')
-        assert.equal(
-            assetUrl(air, 'logo'),
-            `${cdn}@0.4/dist/assets/test-air/logo.svg`,
+            `${cdn}@0.5/dist/assets/test-air/logo.svg`,
         )
         setDataVersion()
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@0.4/dist/assets/test-air/logo.svg`,
+            `${cdn}@0.5/dist/assets/test-air/logo.svg`,
         )
     })
 })
@@ -326,8 +366,8 @@ describe('alliances', () => {
 
     it('loads alliances.json from the same release as the airlines', () => {
         const cdn = 'https://cdn.jsdelivr.net/npm/soaring-symbols'
-        assert.equal(alliancesUrl('0.4.0'), `${cdn}@0.4.0/dist/alliances.json`)
-        assert.equal(alliancesUrl(undefined), `${cdn}@0.4/dist/alliances.json`)
+        assert.equal(alliancesUrl('0.5.0'), `${cdn}@0.5.0/dist/alliances.json`)
+        assert.equal(alliancesUrl(undefined), `${cdn}@0.5/dist/alliances.json`)
     })
 
     it('accepts an alliance list, alliances without marks included', () => {

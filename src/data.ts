@@ -5,11 +5,11 @@ import type {
     HistoricalMarks,
 } from 'soaring-symbols'
 
-// The npm release line the plugin reads, served by jsDelivr. Every 0.4.x
+// The npm release line the plugin reads, served by jsDelivr. Every 0.5.x
 // release (new airlines, fixed SVGs) arrives without a plugin update; a
-// breaking 0.5.0 never does. Move this and the soaring-symbols dependency to
+// breaking 0.6.0 never does. Move this and the soaring-symbols dependency to
 // the next line in the same plugin update.
-export const DATA_LINE = '0.4'
+export const DATA_LINE = '0.5'
 
 // Asks jsDelivr which release the line points at now, e.g. "0.2.4"
 export const RESOLVE_URL = `https://data.jsdelivr.com/v1/packages/npm/soaring-symbols/resolved?specifier=${DATA_LINE}`
@@ -58,6 +58,8 @@ export interface AssetTile {
     url: string
     /** Drawn in currentColor, which the plugin replaces with a chosen color. */
     mono: boolean
+    /** The version for dark backgrounds (`<type>-dark.svg`). */
+    dark: boolean
     /** For an older mark from the airline's history, the year it was introduced. */
     since?: number
 }
@@ -138,15 +140,27 @@ const rankEntries = <T extends { defunct?: boolean }>(
         .map(({ entry }) => entry)
 }
 
+// The other names an airline goes by beside its full one (SWISS for Swiss
+// International Air Lines). `aliases` came in the 0.5 line; the type is
+// spelled out until the bundled dependency moves there.
+type WithAliases = Airline & { aliases?: readonly { name: string }[] }
+export const aliasNames = (airline: WithAliases): string[] =>
+    (airline.aliases ?? []).map((alias) => alias.name)
+
 // How well an airline matches a query, lower is better, or -1 for no match.
-// An exact IATA or ICAO code wins, then names that start with the query, then
-// a match anywhere in the name, slug or callsign, then a former name of a
-// renamed airline (T'way Air for Trinity Airways).
+// An exact IATA or ICAO code wins, then names that start with the query, its
+// own or one of its aliases (SWISS), then a match anywhere in the name, slug
+// or callsign, then a former name of a renamed airline (T'way Air for
+// Trinity Airways).
 const rank = (airline: Airline, q: string): number => {
     const code = q.toUpperCase()
     if (airline.iata === code || airline.icao === code) return 0
-    const byName = nameRank(airline.name, q)
-    if (byName > 0) return byName
+    const byName = Math.min(
+        ...[airline.name, ...aliasNames(airline)]
+            .map((name) => nameRank(name, q))
+            .filter((r) => r > 0),
+    )
+    if (byName < Infinity) return byName
     const rest = [airline.slug, airline.callsign?.toLowerCase() ?? '']
     if (rest.some((field) => field.includes(q))) return 3
     const former = (airline.former ?? []).flatMap((item) =>
@@ -157,8 +171,8 @@ const rank = (airline: Airline, q: string): number => {
     return -1
 }
 
-// Airlines matching a query by name, IATA or ICAO code, slug, callsign or
-// former name,
+// Airlines matching a query by name, alias, IATA or ICAO code, slug,
+// callsign or former name,
 // best match first; active airlines come before defunct ones at each rank.
 // An empty query lists every airline in catalog order, defunct ones last.
 export const searchAirlines = (airlines: Airline[], query: string): Airline[] =>
@@ -182,29 +196,42 @@ export const searchAlliances = (
 export const hasMarks = (owner: MarkOwner): boolean =>
     Object.values(owner.assets).some(Boolean)
 
-// A tile for each file the airline or alliance ships: the color version
-// and, when it exists, the -mono one (always there for single-color marks).
-// With `mark`, the files of that older set from its history.
+// The assets map as the 0.5 line ships it, with `dark` for the marks that
+// have a version for dark backgrounds; spelled out until the bundled
+// dependency moves there
+type AssetsWithDark = Partial<
+    Record<AssetType, { color?: boolean; mono?: boolean; dark?: boolean }>
+>
+
+// A tile for each file the airline or alliance ships: the color version,
+// the -mono one when it exists (always there for single-color marks) and
+// the -dark one for dark backgrounds when it exists. With `mark`, the files
+// of that older set from its history.
 export const getAssetTiles = (
     owner: MarkOwner,
     mark?: HistoricalMarks,
 ): AssetTile[] =>
     (isAirline(owner) ? ASSET_TYPES : ALLIANCE_TYPES).flatMap((type) => {
         // An alliance's map has no tail, which it never asks for
-        const assets: Airline['assets'] = mark?.assets ?? owner.assets
+        const assets: AssetsWithDark = mark?.assets ?? owner.assets
         const info = assets[type]
         if (!info) return []
 
-        const tile = (variant: string, mono: boolean): AssetTile => ({
+        const tile = (
+            variant: string,
+            { mono = false, dark = false } = {},
+        ): AssetTile => ({
             type,
             variant,
             url: assetUrl(owner, variant, mark),
             mono,
+            dark,
             ...(mark && { since: mark.since }),
         })
         const tiles: AssetTile[] = []
-        if (info.color) tiles.push(tile(type, false))
-        if (info.mono) tiles.push(tile(`${type}-mono`, true))
+        if (info.color) tiles.push(tile(type))
+        if (info.mono) tiles.push(tile(`${type}-mono`, { mono: true }))
+        if (info.dark) tiles.push(tile(`${type}-dark`, { dark: true }))
 
         return tiles
     })
@@ -248,9 +275,12 @@ export const tintSvg = (svg: string, color: string): string =>
     HEX.test(color) ? svg.replaceAll(/currentColor/gi, color) : svg
 
 // The layer name of an inserted mark, e.g. "Vietnam Airlines logo (mono)",
-// "SkyTeam icon", or for an older one "Sun PhuQuoc Airways logo (2025, mono)"
+// "SkyTeam icon", "Ryanair logo (dark)", or for an older one "Sun PhuQuoc
+// Airways logo (2025, mono)"
 export const layerName = (owner: MarkOwner, tile: AssetTile): string => {
-    const notes = [tile.since, tile.mono && 'mono'].filter(Boolean)
+    const notes = [tile.since, tile.mono && 'mono', tile.dark && 'dark'].filter(
+        Boolean,
+    )
 
     return `${owner.name} ${tile.type}${notes.length ? ` (${notes.join(', ')})` : ''}`
 }
