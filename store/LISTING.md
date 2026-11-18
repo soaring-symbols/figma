@@ -34,12 +34,13 @@ Soaring Symbols puts a curated collection of airline logos, icons and tail desig
 - Pick the size, from 16 to 256 px.
 - Paint monochrome marks in any color, or in the airline's primary color in one click.
 - Use the version made for dark backgrounds: the airline's own where it has one, else the mark in white.
+- Airlines with a stacked logo, the name under the mark, offer it beside the horizontal one (Japan Airlines, Vietnam Airlines).
 - Layers are named after the airline, like "Vietnam Airlines icon (mono)".
 - Airlines that changed their logo also show their earlier marks, under the year each was introduced.
 
 **Always up to date**
 
-The marks come from the open-source Soaring Symbols collection (MIT), so new airlines, alliances and fixed SVGs show up without a plugin update.
+The marks come from the Soaring Symbols collection, so new airlines, alliances and fixed SVGs show up without a plugin update.
 
 - Website: https://soaringsymbols.org
 - Source: https://github.com/soaring-symbols/figma
