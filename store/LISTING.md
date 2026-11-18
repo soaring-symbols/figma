@@ -23,7 +23,7 @@ Soaring Symbols puts a curated collection of airline logos, icons and tail desig
 
 **Find an airline**
 
-- Search by name, IATA code (VN), ICAO code (HVN), callsign or slug.
+- Search by name, other names it goes by (SWISS), IATA code (VN), ICAO code (HVN), callsign or slug.
 - Every airline shows its codes, country and alliance; airlines that have ceased operations are marked.
 - Alliances are there too: search oneworld, SkyTeam or Star Alliance and insert their icons the same way.
 
@@ -33,12 +33,15 @@ Soaring Symbols puts a curated collection of airline logos, icons and tail desig
 - Or drag it onto the canvas, or into any frame.
 - Pick the size, from 16 to 256 px.
 - Paint monochrome marks in any color, or in the airline's primary color in one click.
+- See each mark's color, monochrome and dark-background versions side by side, one row per logo, icon or tail.
+- Use the version made for dark backgrounds: the airline's own where it has one, else the mark in white.
+- Airlines with a stacked logo, the name under the mark, offer it beside the horizontal one (Japan Airlines, Vietnam Airlines).
 - Layers are named after the airline, like "Vietnam Airlines icon (mono)".
-- Airlines that changed their logo also show their earlier marks, under the year each was introduced.
+- Airlines that changed their logo also show their earlier marks, under the years each was used.
 
 **Always up to date**
 
-The marks come from the open-source Soaring Symbols collection (MIT), so new airlines, alliances and fixed SVGs show up without a plugin update.
+The marks come from the Soaring Symbols collection, so new airlines, alliances and fixed SVGs show up without a plugin update.
 
 - Website: https://soaringsymbols.org
 - Source: https://github.com/soaring-symbols/figma

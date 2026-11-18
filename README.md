@@ -5,11 +5,13 @@ A Figma and FigJam plugin to search airlines by name, IATA or ICAO code and drop
 > [!NOTE]
 > The plugin is [in review on the Figma Community](https://www.figma.com/community/plugin/1701522206126108009). Until it is approved, try it by building it and importing it into the Figma desktop app as described under [Development](#development).
 
-- Search 150+ airlines by name, IATA or ICAO code, callsign or slug, and alliances (oneworld, SkyTeam, Star Alliance) by name.
+- Search 150+ airlines by name, other names they go by (SWISS), IATA or ICAO code, callsign or slug, and alliances (oneworld, SkyTeam, Star Alliance) by name.
 - Insert a mark by clicking it, or drag it onto the canvas. With a single frame, component or section selected, a clicked mark goes inside it.
 - Pick the size of inserted marks (16 to 256 px) and the color of monochrome marks, or use the airline's primary color. Both are remembered.
+- Each mark type gets a row with its color, mono and dark-background versions in columns; the dark one is shown on a dark preview.
+- Airlines with a stacked logo, the name under the mark, list it beside the horizontal one (e.g. Japan Airlines, Vietnam Airlines).
 - Marks come in as editable vector layers, named after the airline (e.g. "Vietnam Airlines icon (mono)").
-- Airlines that changed their logo also list their earlier marks, under the year each was introduced (e.g. "Sun PhuQuoc Airways logo (2025)").
+- Airlines that changed their logo also list their earlier marks, under the years each was used; an inserted one's layer name gives the year it came in (e.g. "Sun PhuQuoc Airways logo (2025)").
 
 ## Development
 

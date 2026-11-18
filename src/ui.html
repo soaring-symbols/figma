@@ -148,21 +148,19 @@
                 border-radius: 4px;
                 background: var(--figma-color-bg, #fff);
             }
-            .controls input[type='color'] {
-                width: 24px;
-                height: 24px;
+            .column-title input[type='color'],
+            .swatch {
+                flex: none;
+                width: 18px;
+                height: 18px;
                 padding: 0;
                 border: 1px solid var(--figma-color-border, #e6e6e6);
                 border-radius: 4px;
                 background: none;
                 cursor: pointer;
             }
-            .link-button {
-                border: 0;
-                padding: 0;
-                background: none;
-                color: var(--figma-color-text-brand, #0d99ff);
-                cursor: pointer;
+            .swatch {
+                border-radius: 50%;
             }
             .section-title {
                 margin: 0;
@@ -171,18 +169,51 @@
                 font-weight: 600;
                 color: var(--figma-color-text-secondary, #666);
             }
+            .type-title {
+                margin: 0;
+                padding: 8px 12px 4px;
+                font-size: 11px;
+                font-weight: 500;
+            }
             .tiles {
                 display: grid;
-                grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
-                padding: 12px;
+                padding: 0 12px;
+            }
+            /* The column names stay in view while the marks scroll */
+            .column-titles {
+                position: sticky;
+                top: 0;
+                z-index: 1;
+                padding-top: 8px;
+                padding-bottom: 8px;
+                background: var(--figma-color-bg, #fff);
+                border-bottom: 1px solid var(--figma-color-border, #e6e6e6);
+            }
+            .column-title {
+                display: flex;
+                gap: 4px;
+                align-items: center;
+                min-width: 0;
+                height: 18px;
+                color: var(--figma-color-text-secondary, #757575);
+                font-weight: 500;
+            }
+            .column-title span {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            #content > .tiles:last-child {
+                padding-bottom: 12px;
+            }
+            .tile-missing {
+                border: 1px dashed var(--figma-color-border, #e6e6e6);
+                border-radius: 6px;
             }
             .tile {
                 display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 6px;
-                padding: 12px 8px 8px;
+                padding: 4px;
                 border: 1px solid var(--figma-color-border, #e6e6e6);
                 border-radius: 6px;
                 background: transparent;
@@ -195,7 +226,7 @@
             }
             .tile-preview {
                 width: 100%;
-                height: 88px;
+                height: 72px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -230,9 +261,13 @@
                     6px -6px,
                     -6px 0;
             }
+            /* A mark for dark backgrounds shows on one, as it will be used */
+            .tile[data-dark='true'] .tile-preview {
+                background: #1e1e1e;
+            }
             .tile-preview img {
-                width: 72px;
-                height: 72px;
+                width: 56px;
+                height: 56px;
                 pointer-events: none;
             }
             footer {
@@ -282,13 +317,6 @@
                     Size
                     <select id="size"></select>
                 </label>
-                <label>
-                    Mono
-                    <input id="mono-color" type="color" />
-                </label>
-                <button id="primary-color" class="link-button" type="button">
-                    Use primary color
-                </button>
             </div>
         </section>
         <main id="content"></main>
