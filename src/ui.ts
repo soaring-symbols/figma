@@ -162,6 +162,9 @@ const ownerRow = (owner: MarkOwner) => {
         : allianceLabel(owner)
     const name = el('div', { className: 'airline-name' }, owner.name)
     // A disbanded alliance says so in its line already
+    if (isAirline(owner) && owner.cargo) {
+        name.append(el('span', { className: 'badge' }, 'Cargo'))
+    }
     if (owner.defunct && isAirline(owner)) {
         name.append(el('span', { className: 'badge' }, 'Defunct'))
     }
@@ -343,6 +346,7 @@ const detailMeta = (owner: MarkOwner) =>
     isAirline(owner)
         ? [
               codesLabel(owner),
+              owner.cargo ? 'Cargo' : '',
               owner.alliance,
               owner.defunct
                   ? `Defunct${owner.ceased ? ` ${owner.ceased}` : ''}`
