@@ -47,8 +47,6 @@ const detailView = $('detail-view')
 const content = $('content')
 const search = $<HTMLInputElement>('search')
 const sizeSelect = $<HTMLSelectElement>('size')
-const monoInput = $<HTMLInputElement>('mono-color')
-const primaryButton = $<HTMLButtonElement>('primary-color')
 
 let airlines: Airline[] = []
 let alliances: Alliance[] = []
@@ -71,6 +69,17 @@ const el = <K extends keyof HTMLElementTagNameMap>(
 
     return node
 }
+
+// The mono color controls, which live in the Mono column's heading of the
+// detail view, so it is clear they only paint the mono marks
+const monoInput = document.createElement('input')
+monoInput.type = 'color'
+monoInput.title = 'Color of the mono marks'
+monoInput.ariaLabel = monoInput.title
+const primaryButton: HTMLButtonElement = el('button', {
+    className: 'swatch',
+    type: 'button',
+})
 
 const fetchSvg = (url: string): Promise<string> => {
     let svg = svgCache.get(url)
@@ -222,6 +231,24 @@ const renderList = () => {
 
 /* Detail view */
 
+const capitalize = (text: string) => `${text[0].toUpperCase()}${text.slice(1)}`
+
+// The detail view's columns: the color file, the mono one and the one for
+// dark backgrounds
+const COLUMNS = [
+    {
+        key: 'color',
+        title: 'Color',
+        has: (tile: AssetTile) => !tile.mono && !tile.dark,
+    },
+    { key: 'mono', title: 'Mono', has: (tile: AssetTile) => tile.mono },
+    {
+        key: 'dark',
+        title: 'Dark background',
+        has: (tile: AssetTile) => tile.dark,
+    },
+] as const
+
 const markFor = async (
     owner: MarkOwner,
     tile: AssetTile,
@@ -237,11 +264,7 @@ const markFor = async (
 
 const tileButton = (owner: MarkOwner, tile: AssetTile) => {
     const img = el('img', { alt: '' })
-    const label = el(
-        'span',
-        { className: 'secondary' },
-        `${typeLabel(tile.type)[0].toUpperCase()}${typeLabel(tile.type).slice(1)}${tile.mono ? ' · mono' : ''}${tile.dark ? ' · dark' : ''}`,
-    )
+    const preview = el('span', { className: 'tile-preview' }, img)
     const button = el(
         'button',
         {
@@ -250,8 +273,7 @@ const tileButton = (owner: MarkOwner, tile: AssetTile) => {
             draggable: true,
             title: `Insert ${layerName(owner, tile)}`,
         },
-        el('span', { className: 'tile-preview' }, img),
-        label,
+        preview,
     )
 
     // The last mark built for this tile, so a drop can be sent at once
@@ -261,7 +283,13 @@ const tileButton = (owner: MarkOwner, tile: AssetTile) => {
             mark = await markFor(owner, tile)
             img.src = dataUrl(mark.svg)
         } catch {
-            label.textContent = `${tile.variant}.svg couldn't be loaded`
+            preview.replaceChildren(
+                el(
+                    'span',
+                    { className: 'secondary' },
+                    `${tile.variant}.svg couldn't be loaded`,
+                ),
+            )
         }
     }
     button.dataset.mono = String(tile.mono)
@@ -332,45 +360,89 @@ const showOwner = (owner: MarkOwner) => {
     $('detail-meta').textContent = detailMeta(owner)
 
     // The airline's or alliance's one primary color
-    // (branding.primary_color), not its full palette, so the button says
-    // "primary color"
+    // (branding.primary_color), not its full palette
     const primary = owner.branding?.primary_color
     primaryButton.hidden = !primary
-    primaryButton.style.color = primary ?? ''
+    primaryButton.style.background = primary ?? ''
+    primaryButton.title = `Paint the mono marks in the primary color (${primary})`
+    primaryButton.ariaLabel = primaryButton.title
 
-    const grid = (tiles: AssetTile[]) =>
-        el(
-            'div',
-            { className: 'tiles' },
-            ...tiles.map((tile) => tileButton(owner, tile)),
-        )
-    const tiles = getAssetTiles(owner)
-    // With older marks, the current ones get a heading of their own above
-    // them, newest first; without, the grid stays as it was
     const history = earlierMarks(owner)
+    const sets = [
+        { title: 'Current', tiles: getAssetTiles(owner) },
+        ...history.map((mark) => ({
+            title: markTitle(owner, mark),
+            tiles: getAssetTiles(owner, mark),
+        })),
+    ]
+    if (!sets[0].tiles.length) {
+        content.replaceChildren(
+            el(
+                'div',
+                { className: 'empty' },
+                `No marks for ${owner.name} yet.`,
+            ),
+        )
+        content.scrollTop = 0
+        $('back').focus()
+
+        return
+    }
+
+    // One column per kind of file any of the marks has, in the same place
+    // on every row, so a row with no mono or dark version leaves a gap
+    const all = sets.flatMap((set) => set.tiles)
+    const columns = COLUMNS.filter((column) => all.some(column.has))
+    const row = (...cells: Node[]) => {
+        const node = el('div', { className: 'tiles' }, ...cells)
+        node.style.gridTemplateColumns = `repeat(${columns.length}, 1fr)`
+
+        return node
+    }
+    const monoControls: Node[] = [monoInput, primaryButton]
+    const heading = row(
+        ...columns.map((column) =>
+            el(
+                'div',
+                { className: 'column-title' },
+                el('span', {}, column.title),
+                ...(column.key === 'mono' ? monoControls : []),
+            ),
+        ),
+    )
+    heading.classList.add('column-titles')
+
+    // Each set of marks (the current ones, then older ones newest first)
+    // has a row per mark type; the set's title only when there is history
     content.replaceChildren(
-        ...(!tiles.length
-            ? [
-                  el(
-                      'div',
-                      { className: 'empty' },
-                      `No marks for ${owner.name} yet.`,
-                  ),
-              ]
-            : history.length
-              ? [
-                    el('h2', { className: 'section-title' }, 'Current'),
-                    grid(tiles),
-                    ...history.flatMap((mark) => [
+        heading,
+        ...sets.flatMap((set) => [
+            ...(history.length
+                ? [el('h2', { className: 'section-title' }, set.title)]
+                : []),
+            ...[...new Set(set.tiles.map((tile) => tile.type))].flatMap(
+                (type) => {
+                    const tiles = set.tiles.filter((tile) => tile.type === type)
+
+                    return [
                         el(
-                            'h2',
-                            { className: 'section-title' },
-                            markTitle(owner, mark),
+                            'h3',
+                            { className: 'type-title' },
+                            capitalize(typeLabel(type)),
                         ),
-                        grid(getAssetTiles(owner, mark)),
-                    ]),
-                ]
-              : [grid(tiles)]),
+                        row(
+                            ...columns.map((column) => {
+                                const tile = tiles.find(column.has)
+
+                                return tile
+                                    ? tileButton(owner, tile)
+                                    : el('span', { className: 'tile-missing' })
+                            }),
+                        ),
+                    ]
+                },
+            ),
+        ]),
     )
     content.scrollTop = 0
     $('back').focus()
