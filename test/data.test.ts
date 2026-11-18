@@ -125,9 +125,19 @@ describe('getAssetTiles', () => {
     it('returns color and mono tiles in logo, icon, tail order', () => {
         const airline = fake({
             assets: {
-                tail: { color: true, mono: false, colors: ['#ff0000'] },
-                icon: { color: false, mono: true, colors: [] },
-                logo: { color: true, mono: true, colors: ['#000000'] },
+                tail: {
+                    color: true,
+                    mono: false,
+                    dark: false,
+                    colors: ['#ff0000'],
+                },
+                icon: { color: false, mono: true, dark: false, colors: [] },
+                logo: {
+                    color: true,
+                    mono: true,
+                    dark: false,
+                    colors: ['#000000'],
+                },
             },
         })
         assert.deepEqual(
@@ -162,9 +172,14 @@ describe('getAssetTiles', () => {
     it('lists a stacked logo after the logo', () => {
         const airline = fake({
             assets: {
-                icon: { color: true, mono: false, colors: [] },
-                'logo-stacked': { color: true, mono: true, colors: [] },
-                logo: { color: true, mono: false, colors: [] },
+                icon: { color: true, mono: false, dark: false, colors: [] },
+                'logo-stacked': {
+                    color: true,
+                    mono: true,
+                    dark: false,
+                    colors: [],
+                },
+                logo: { color: true, mono: false, dark: false, colors: [] },
             },
         } as Partial<Airline>)
         const tiles = getAssetTiles(airline)
@@ -193,8 +208,8 @@ describe('thumbnailUrl', () => {
     it('prefers the icon, then the logo, in color when it can', () => {
         const airline = fake({
             assets: {
-                logo: { color: true, mono: true, colors: [] },
-                icon: { color: false, mono: true, colors: [] },
+                logo: { color: true, mono: true, dark: false, colors: [] },
+                icon: { color: false, mono: true, dark: false, colors: [] },
             },
         })
         assert.equal(thumbnailUrl(airline), assetUrl(airline, 'icon-mono'))
@@ -231,7 +246,11 @@ describe('layerName', () => {
     it('names the airline, the type and a mono variant', () => {
         const airline = fake({})
         const [logo, mono] = getAssetTiles(
-            fake({ assets: { logo: { color: true, mono: true, colors: [] } } }),
+            fake({
+                assets: {
+                    logo: { color: true, mono: true, dark: false, colors: [] },
+                },
+            }),
         )
         assert.equal(layerName(airline, logo), 'Test Air logo')
         assert.equal(layerName(airline, mono), 'Test Air logo (mono)')
@@ -241,7 +260,7 @@ describe('layerName', () => {
 describe('exact release URLs', () => {
     const cdn = 'https://cdn.jsdelivr.net/npm/soaring-symbols'
     const air = fake({
-        assets: { logo: { color: true, mono: false, colors: [] } },
+        assets: { logo: { color: true, mono: false, dark: false, colors: [] } },
     })
 
     it('accepts only exact releases of the line', () => {
@@ -293,6 +312,7 @@ describe('earlier marks', () => {
     const info = (color: boolean, mono: boolean) => ({
         color,
         mono,
+        dark: false,
         colors: [],
     })
     const air = fake({
@@ -386,7 +406,8 @@ describe('searchAirlines by former name', () => {
 describe('alliances', () => {
     const alliances = listAlliances()
     const ally = (overrides: Partial<Alliance>): Alliance => ({
-        name: 'Test Alliance',
+        // Any alliance name: each test sets the one it needs
+        name: 'Star Alliance',
         slug: 'test-alliance',
         assets: {},
         ...overrides,
@@ -396,8 +417,8 @@ describe('alliances', () => {
         slug: 'skyteam',
         founded: 2000,
         assets: {
-            icon: { color: true, mono: true, colors: ['#1a3576'] },
-            logo: { color: true, mono: false, colors: [] },
+            icon: { color: true, mono: true, dark: false, colors: ['#1a3576'] },
+            logo: { color: true, mono: false, dark: false, colors: [] },
         },
     })
 
