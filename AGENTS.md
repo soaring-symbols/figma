@@ -17,13 +17,13 @@ A Figma and FigJam plugin that searches the [Soaring Symbols](https://github.com
 
 ### Where the data comes from
 
-The UI loads `airlines.json`, `alliances.json` and the SVGs from the published `soaring-symbols` npm package through jsDelivr, pinned to one release line: `https://cdn.jsdelivr.net/npm/soaring-symbols@<DATA_LINE>/dist/…`, with `DATA_LINE` (e.g. `"0.4"`) in `src/data.ts`. Every patch release reaches the plugin without an update; a breaking minor release never does until the plugin moves to it. If the list can't be loaded or isn't usable (`isAirlineList`), the UI falls back to `listAirlines()` from the bundled `soaring-symbols` dependency and says so; `alliances.json` comes from the same release, falling back quietly to `listAlliances()` (`isAllianceList`).
+The UI loads `airlines.json`, `alliances.json` and the SVGs from the published `soaring-symbols` npm package through jsDelivr, pinned to one release line: `https://cdn.jsdelivr.net/npm/soaring-symbols@<DATA_LINE>/dist/…`, with `DATA_LINE` (`"0.<minor>"`) in `src/data.ts`. Every patch release reaches the plugin without an update; a breaking minor release never does until the plugin moves to it. If the list can't be loaded or isn't usable (`isAirlineList`), the UI falls back to `listAirlines()` from the bundled `soaring-symbols` dependency and says so; `alliances.json` comes from the same release, falling back quietly to `listAlliances()` (`isAllianceList`).
 
-Before loading, the UI asks jsDelivr which release the line points at (`RESOLVE_URL` on `data.jsdelivr.com`, e.g. `0.4.0`) and loads `airlines.json` and every SVG from that exact release (`setDataVersion`). A line URL keeps its address when a release replaces the file behind it, and the browser cache in Figma, which jsDelivr lets keep a file for 7 days, would keep showing the old logo. When the release can't be resolved, everything loads from the line as before.
+Before loading, the UI asks jsDelivr which release the line points at (`RESOLVE_URL` on `data.jsdelivr.com`, an exact release such as `0.<minor>.<patch>`) and loads `airlines.json` and every SVG from that exact release (`setDataVersion`). A line URL keeps its address when a release replaces the file behind it, and the browser cache in Figma, which jsDelivr lets keep a file for 7 days, would keep showing the old logo. When the release can't be resolved, everything loads from the line as before.
 
 `manifest.json` allows only `https://cdn.jsdelivr.net` and `https://data.jsdelivr.com` in `networkAccess`; loading from anywhere else means adding the domain there.
 
-When the library releases a new minor line, update the plugin in one change: set `DATA_LINE`, move the `soaring-symbols` dependency to the line (`npm install soaring-symbols@^0.5.0`, plus `bun install`), adapt the code, and publish a new version from the Figma app.
+When the library releases a new minor line, update the plugin in one change: set `DATA_LINE`, move the `soaring-symbols` dependency to the line (`npm install soaring-symbols@^0.<minor>.0`, plus `bun install`), adapt the code, and publish a new version from the Figma app.
 
 ## Commands
 
