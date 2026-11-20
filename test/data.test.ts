@@ -394,6 +394,34 @@ describe('markTitle', () => {
     })
 })
 
+describe('searchAirlines by "cargo"', () => {
+    it('finds a cargo airline without the word in its name, after name matches', () => {
+        const list = [
+            fake({
+                name: 'Express Freight',
+                slug: 'express-freight',
+                iata: 'E1',
+                cargo: true,
+            }),
+            fake({ name: 'Cargo Wings', slug: 'cargo-wings', iata: 'C1' }),
+            fake({ name: 'Passenger Air', slug: 'passenger-air', iata: 'P1' }),
+        ]
+        for (const query of ['Cargo', 'carg']) {
+            assert.deepEqual(names(searchAirlines(list, query)), [
+                'Cargo Wings',
+                'Express Freight',
+            ])
+        }
+    })
+
+    it('lists every cargo airline in the catalog', () => {
+        const cargo = airlines.filter((a) => a.cargo)
+        assert.ok(cargo.length > 0)
+        const found = searchAirlines(airlines, 'cargo')
+        assert.ok(cargo.every((a) => found.includes(a)))
+    })
+})
+
 describe('searchAirlines by former name', () => {
     it("finds Trinity Airways by T'way Air, after current-name matches", () => {
         assert.equal(

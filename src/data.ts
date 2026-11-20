@@ -154,8 +154,8 @@ export const aliasNames = (airline: WithAliases): string[] =>
 // How well an airline matches a query, lower is better, or -1 for no match.
 // An exact IATA or ICAO code wins, then names that start with the query, its
 // own or one of its aliases (SWISS), then a match anywhere in the name, slug
-// or callsign, then a former name of a renamed airline (T'way Air for
-// Trinity Airways).
+// or callsign, or the word "cargo" for a cargo airline (FedEx Express), then
+// a former name of a renamed airline (T'way Air for Trinity Airways).
 const rank = (airline: Airline, q: string): number => {
     const code = q.toUpperCase()
     if (airline.iata === code || airline.icao === code) return 0
@@ -167,6 +167,7 @@ const rank = (airline: Airline, q: string): number => {
     if (byName < Infinity) return byName
     const rest = [airline.slug, airline.callsign?.toLowerCase() ?? '']
     if (rest.some((field) => field.includes(q))) return 3
+    if (airline.cargo && 'cargo'.startsWith(q)) return 3
     const former = (airline.former ?? []).flatMap((item) =>
         item.name ? [item.name] : [],
     )
@@ -176,7 +177,7 @@ const rank = (airline: Airline, q: string): number => {
 }
 
 // Airlines matching a query by name, alias, IATA or ICAO code, slug,
-// callsign or former name,
+// callsign, "cargo" or former name,
 // best match first; active airlines come before defunct ones at each rank.
 // An empty query lists every airline in catalog order, defunct ones last.
 export const searchAirlines = (airlines: Airline[], query: string): Airline[] =>

@@ -25,6 +25,7 @@ Soaring Symbols puts a curated collection of airline logos, icons and tail desig
 
 - Search by name, other names it goes by (SWISS), IATA code (VN), ICAO code (HVN), callsign or slug.
 - Every airline shows its codes, country and alliance; airlines that have ceased operations are marked.
+- Cargo airlines and cargo brands (Cargolux, Qatar Airways Cargo) carry a Cargo badge; search "cargo" to list them.
 - Alliances are there too: search oneworld, SkyTeam or Star Alliance and insert their icons the same way.
 
 **Use its marks**

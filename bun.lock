@@ -5,18 +5,17 @@
     "": {
       "name": "soaring-symbols-figma",
       "dependencies": {
-        "soaring-symbols": "^0.5.0",
+        "soaring-symbols": "^0.5.1",
       },
       "devDependencies": {
         "@eslint/js": "^10.0.1",
-        "@figma/plugin-typings": "^1.142.0",
+        "@figma/plugin-typings": "^1.143.0",
         "@types/node": "^26.6.6",
         "esbuild": "^0.28.2",
         "eslint": "^10.15.0",
         "eslint-config-prettier": "^10.1.8",
         "globals": "^17.14.0",
         "prettier": "^3.10.1",
-        "typescript": "^6.0.3",
         "typescript-eslint": "^8.73.0",
       },
     },
@@ -94,7 +93,7 @@
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.7.3", "", { "dependencies": { "@eslint/core": "^1.2.1", "levn": "^0.4.1" } }, "sha512-IkO+/KEUvwbVpiURZg+P7zF74z5Jxe0UgJxVni+RtoHQ6IZieXaO02kmadomap/q+l6bc/jdPGGqTjhuZnuz1Q=="],
 
-    "@figma/plugin-typings": ["@figma/plugin-typings@1.142.0", "", {}, "sha512-Loa9P4bUZi/pQejic8OYQSU4Zz9izJdIiDUkkKddq5Bfc5JPRV6pCeg3C8owovbX9lKshaFym86PlMhKZgLeBw=="],
+    "@figma/plugin-typings": ["@figma/plugin-typings@1.143.0", "", {}, "sha512-7oP0XwTiuAuQPRNmuPX4PeRP5fjLMnRZ6Ed7Ybr61JoW9Os04Eml/XqYE3kyvohcFQfYXsRK5sqCLaKzc8qnZg=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.2", "", { "dependencies": { "@humanfs/types": "^0.15.0" } }, "sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA=="],
 
@@ -256,7 +255,7 @@
 
     "shebang-regex": ["shebang-regex@3.0.0", "", {}, "sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A=="],
 
-    "soaring-symbols": ["soaring-symbols@0.5.0", "", { "peerDependencies": { "@resvg/resvg-wasm": "2.6.2" }, "optionalPeers": ["@resvg/resvg-wasm"] }, "sha512-C67YyWB5fzYT22CER6405XjqY0zT1GOoOLbbgZg82guefyGUJdCRx/Om3BFW4+lZ7zMnf7LNkhD85Ypu9TDZ7g=="],
+    "soaring-symbols": ["soaring-symbols@0.5.1", "", { "peerDependencies": { "@resvg/resvg-wasm": "2.6.2" }, "optionalPeers": ["@resvg/resvg-wasm"] }, "sha512-PV2+ENUBfr+JOHCvvcALMTrqaTKGKqNRso54cT8tv9lEsCm1THZ4zawmemYN4hNOVVl9DXDGE8xtB3ubDwltDw=="],
 
     "tinyglobby": ["tinyglobby@0.2.17", "", { "dependencies": { "fdir": "^6.5.0", "picomatch": "^4.0.4" } }, "sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g=="],
 

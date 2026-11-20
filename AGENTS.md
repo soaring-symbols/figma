@@ -36,7 +36,7 @@ When the library releases a new minor line, update the plugin in one change: set
 | `npm run format`    | Prettier.                                               |
 | `npm test`          | `node --test` on `test/**/*.test.ts` (Node 22.18+).     |
 
-Dependencies are tracked in both `package-lock.json` and `bun.lock`; update both together.
+Dependencies are tracked in both `package-lock.json` and `bun.lock`; update both together. TypeScript is not listed: npm and bun install it as a peer of `typescript-eslint`, whose range decides the version `tsc` runs.
 
 ## Gotchas
 
