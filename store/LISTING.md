@@ -1,5 +1,8 @@
 # Figma Community listing
 
+<!-- The Description is pasted into Figma as plain text: bold lines stand in for headings, and URLs stay bare -->
+<!-- markdownlint-disable no-emphasis-as-heading no-bare-urls -->
+
 The text and images to paste into the publish dialog (**Plugins → Development → Manage plugins in development → Publish**). Keep this file in step with what is live on the [Community page](https://www.figma.com/community/plugin/1701522206126108009).
 
 ## Images
