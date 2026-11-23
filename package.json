@@ -1,33 +1,33 @@
 {
-    "name": "soaring-symbols-figma",
-    "private": true,
-    "description": "Figma plugin to search airlines and drop their Soaring Symbols logos, icons and tails into designs.",
-    "license": "MIT",
-    "author": {
-        "name": "Anh Thang Bui",
-        "url": "https://anhthang.org"
-    },
-    "type": "module",
-    "scripts": {
-        "build": "node scripts/build.js",
-        "watch": "node scripts/build.js --watch",
-        "typecheck": "tsc --noEmit",
-        "lint": "eslint . && prettier --check .",
-        "format": "prettier --write .",
-        "test": "node --test \"test/**/*.test.ts\""
-    },
-    "devDependencies": {
-        "@eslint/js": "^10.0.1",
-        "@figma/plugin-typings": "^1.143.0",
-        "@types/node": "^26.6.6",
-        "esbuild": "^0.28.2",
-        "eslint": "^10.15.0",
-        "eslint-config-prettier": "^10.1.8",
-        "globals": "^17.14.0",
-        "prettier": "^3.10.1",
-        "typescript-eslint": "^8.73.0"
-    },
-    "dependencies": {
-        "soaring-symbols": "^0.6.0"
-    }
+  "name": "soaring-symbols-figma",
+  "private": true,
+  "description": "Figma plugin to search airlines and drop their Soaring Symbols logos, icons and tails into designs.",
+  "license": "MIT",
+  "author": {
+    "name": "Anh Thang Bui",
+    "url": "https://anhthang.org"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "watch": "node scripts/build.js --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "test": "node --test \"test/**/*.test.ts\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@figma/plugin-typings": "^1.143.0",
+    "@types/node": "^26.6.6",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "typescript-eslint": "^8.73.0"
+  },
+  "dependencies": {
+    "soaring-symbols": "^0.6.0"
+  }
 }

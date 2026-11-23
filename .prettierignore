@@ -1,3 +1,2 @@
-dist/
 package-lock.json
-bun.lock
+.markdownlint.jsonc
