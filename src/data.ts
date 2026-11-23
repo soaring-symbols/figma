@@ -5,11 +5,11 @@ import type {
     HistoricalMarks,
 } from 'soaring-symbols'
 
-// The npm release line the plugin reads, served by jsDelivr. Every 0.5.x
+// The npm release line the plugin reads, served by jsDelivr. Every 0.6.x
 // release (new airlines, fixed SVGs) arrives without a plugin update; a
-// breaking 0.6.0 never does. Move this and the soaring-symbols dependency to
+// breaking 0.7.0 never does. Move this and the soaring-symbols dependency to
 // the next line in the same plugin update.
-export const DATA_LINE = '0.5'
+export const DATA_LINE = '0.6'
 
 // Asks jsDelivr which release the line points at now, e.g. "0.2.4"
 export const RESOLVE_URL = `https://data.jsdelivr.com/v1/packages/npm/soaring-symbols/resolved?specifier=${DATA_LINE}`
@@ -52,7 +52,7 @@ const ASSET_TYPES: MarkType[] = ['logo', 'logo-stacked', 'icon', 'tail']
 const ALLIANCE_TYPES = ['icon', 'logo'] as const
 
 // An airline or an alliance: both name their marks the same way, under
-// assets/<slug>/ or alliances/<slug>/
+// airlines/<slug>/ or alliances/<slug>/
 export type MarkOwner = Airline | Alliance
 
 export interface AssetTile {
@@ -74,9 +74,10 @@ export interface AssetTile {
 export const isAirline = (owner: MarkOwner): owner is Airline =>
     'country' in owner
 
-// Where an airline's or an alliance's files live in the package
+// Where an airline's or an alliance's files live in the package (airline
+// marks were in assets/ before 0.6)
 const markRoot = (owner: MarkOwner) =>
-    isAirline(owner) ? 'assets' : 'alliances'
+    isAirline(owner) ? 'airlines' : 'alliances'
 
 // A file of the current marks, or with `mark` of the older ones introduced
 // in mark.since

@@ -146,7 +146,7 @@ describe('getAssetTiles', () => {
         )
         assert.equal(
             getAssetTiles(airline)[1].url,
-            `${CDN}/assets/test-air/logo-mono.svg`,
+            `${CDN}/airlines/test-air/logo-mono.svg`,
         )
     })
 
@@ -165,7 +165,7 @@ describe('getAssetTiles', () => {
                 ['logo-dark', false, true],
             ],
         )
-        assert.equal(tiles[2].url, `${CDN}/assets/test-air/logo-dark.svg`)
+        assert.equal(tiles[2].url, `${CDN}/airlines/test-air/logo-dark.svg`)
         assert.equal(layerName(airline, tiles[2]), 'Test Air logo (dark)')
     })
 
@@ -189,7 +189,7 @@ describe('getAssetTiles', () => {
         )
         assert.equal(
             tiles[2].url,
-            `${CDN}/assets/test-air/logo-stacked-mono.svg`,
+            `${CDN}/airlines/test-air/logo-stacked-mono.svg`,
         )
         assert.equal(
             layerName(airline, tiles[2]),
@@ -293,17 +293,17 @@ describe('exact release URLs', () => {
         setDataVersion(release(1))
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@${release(1)}/dist/assets/test-air/logo.svg`,
+            `${cdn}@${release(1)}/dist/airlines/test-air/logo.svg`,
         )
         setDataVersion(earlierLine)
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@${DATA_LINE}/dist/assets/test-air/logo.svg`,
+            `${cdn}@${DATA_LINE}/dist/airlines/test-air/logo.svg`,
         )
         setDataVersion()
         assert.equal(
             assetUrl(air, 'logo'),
-            `${cdn}@${DATA_LINE}/dist/assets/test-air/logo.svg`,
+            `${cdn}@${DATA_LINE}/dist/airlines/test-air/logo.svg`,
         )
     })
 })
@@ -343,9 +343,9 @@ describe('earlier marks', () => {
         assert.deepEqual(
             tiles.map((tile) => [tile.url, tile.since]),
             [
-                [`${CDN}/assets/korean-air/history/1984/logo.svg`, 1984],
-                [`${CDN}/assets/korean-air/history/1984/icon.svg`, 1984],
-                [`${CDN}/assets/korean-air/history/1984/icon-mono.svg`, 1984],
+                [`${CDN}/airlines/korean-air/history/1984/logo.svg`, 1984],
+                [`${CDN}/airlines/korean-air/history/1984/icon.svg`, 1984],
+                [`${CDN}/airlines/korean-air/history/1984/icon-mono.svg`, 1984],
             ],
         )
         assert.equal(getAssetTiles(air)[0].since, undefined)
