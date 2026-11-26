@@ -12,6 +12,7 @@ A Figma and FigJam plugin that searches the [Soaring Symbols](https://github.com
 - `src/data.ts` — pure helpers shared by the UI and the tests: data URLs (`DATA_LINE`), search ranking (`searchAirlines`, `searchAlliances`), asset tiles for an airline or an alliance (`MarkOwner`; `isAirline` tells them apart, alliances have icons and logos under `alliances/<slug>/` and no tail) (current ones, and with a `history` entry an older set under `history/<since>/`; `earlierMarks` lists them newest first), tinting mono SVGs.
 - `src/messages.ts` — the message types between the UI and the main thread, and the default settings.
 - `scripts/build.js` — esbuild: `src/code.ts` → `dist/code.js` (ES2017, for Figma's main-thread engine), and `src/ui.ts` bundled and inlined into `dist/ui.html`, since Figma loads the UI as one HTML string.
+- `dev/host.html` — a stand-in for Figma, to try the UI in a browser (see Gotchas).
 - `test/` — unit tests for `src/data.ts`, run by Node's test runner with type stripping.
 - `store/` — what the Figma Community page shows: `LISTING.md` (the text for the publish dialog), and `icon.png` and `thumbnail.png`, copied from `exports/figma/` in [soaring-symbols/brand](https://github.com/soaring-symbols/brand), where they are rendered; change them there first. Update `LISTING.md` when a feature changes, and the thumbnail when the UI does.
 
@@ -27,14 +28,15 @@ When the library releases a new minor line, update the plugin in one change: set
 
 ## Commands
 
-| Command             | What it does                                            |
-| :------------------ | :------------------------------------------------------ |
-| `npm run build`     | Build `dist/` (git-ignored); Figma loads it from there. |
-| `npm run watch`     | Rebuild on change.                                      |
-| `npm run typecheck` | `tsc --noEmit`.                                         |
-| `npm run lint`      | ESLint, then Prettier in check mode.                    |
-| `npm run format`    | Prettier.                                               |
-| `npm test`          | `node --test` on `test/**/*.test.ts` (Node 22.18+).     |
+| Command             | What it does                                                                               |
+| :------------------ | :----------------------------------------------------------------------------------------- |
+| `npm run build`     | Build `dist/` (git-ignored); Figma loads it from there.                                    |
+| `npm run watch`     | Rebuild on change.                                                                         |
+| `npm run preview`   | Build, then serve the repository at `http://localhost:4174` (esbuild) for `dev/host.html`. |
+| `npm run typecheck` | `tsc --noEmit`.                                                                            |
+| `npm run lint`      | ESLint, then Prettier in check mode.                                                       |
+| `npm run format`    | Prettier.                                                                                  |
+| `npm test`          | `node --test` on `test/**/*.test.ts` (Node 22.18+).                                        |
 
 Dependencies are tracked in both `package-lock.json` and `bun.lock`; update both together. TypeScript is not listed: npm and bun install it as a peer of `typescript-eslint`, whose range decides the version `tsc` runs.
 
@@ -45,7 +47,7 @@ Dependencies are tracked in both `package-lock.json` and `bun.lock`; update both
 - Drag and drop uses Figma's `pluginDrop` message from the UI's `dragend`; its `dropMetadata` must stay plain JSON.
 - In the UI, a key handler that moves focus to a button must `preventDefault()`, or the same key press clicks that button.
 - The size and mono color row (`#controls`) moves into the detail view's marks while an airline is shown, and leaves the document when the list replaces them; `ui.ts` keeps references to it and its parts, so never look them up by id after the first airline.
-- The main thread can only be tried inside Figma. The UI can be checked in a browser by loading `dist/ui.html` in an iframe and posting it an `init` message, as `code.ts` does.
+- The main thread can only be tried inside Figma. The UI can be checked in a browser with `npm run preview` and `/dev/host.html`, which loads `dist/ui.html` in an iframe, posts it an `init` message as `code.ts` does, and logs what the UI posts back; `?theme=dark` adds the `figma-dark` class and Figma's dark `--figma-color-*` variables, as `themeColors` does.
 
 ## Conventions
 

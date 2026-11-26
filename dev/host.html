@@ -1,0 +1,84 @@
+<!doctype html>
+<!--
+    A stand-in for Figma, to try the plugin's UI in a browser: it loads
+    dist/ui.html in a 360 × 560 frame, sends it the init message code.ts
+    sends, and logs every message the UI posts to the main thread. Run
+    npm run preview and open /dev/host.html; ?theme=dark gives the UI Figma's
+    dark theme, as themeColors does.
+-->
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Fake Figma host</title>
+        <style>
+            body {
+                margin: 0;
+                display: flex;
+                font: 12px system-ui;
+            }
+            iframe {
+                width: 360px;
+                height: 560px;
+                border: 1px solid #ccc;
+            }
+            pre {
+                flex: 1;
+                margin: 0;
+                padding: 8px;
+                height: 560px;
+                overflow: auto;
+                background: #f7f7f7;
+            }
+        </style>
+    </head>
+    <body>
+        <iframe id="frame" src="../dist/ui.html"></iframe>
+        <pre id="log"></pre>
+        <script>
+            const frame = document.getElementById('frame')
+            const log = (line) => {
+                document.getElementById('log').textContent += line + '\n'
+            }
+            // Figma's dark theme, as themeColors puts it on the UI's root:
+            // the figma-dark class and the --figma-color-* variables
+            const DARK = {
+                bg: '#2c2c2c',
+                'bg-secondary': '#383838',
+                'bg-selected': '#4a5878',
+                border: '#444444',
+                'border-selected': '#0c8ce9',
+                text: '#ffffff',
+                'text-secondary': 'rgb(255 255 255 / 0.7)',
+                'text-tertiary': 'rgb(255 255 255 / 0.4)',
+            }
+            frame.addEventListener('load', () => {
+                if (
+                    new URLSearchParams(location.search).get('theme') === 'dark'
+                ) {
+                    const root = frame.contentDocument.documentElement
+                    root.classList.add('figma-dark')
+                    for (const [name, value] of Object.entries(DARK)) {
+                        root.style.setProperty(`--figma-color-${name}`, value)
+                    }
+                }
+                frame.contentWindow.postMessage(
+                    {
+                        pluginMessage: {
+                            type: 'init',
+                            settings: { size: 64, monoColor: '#000000' },
+                        },
+                    },
+                    '*',
+                )
+            })
+            addEventListener('message', (event) => {
+                const message = JSON.stringify(event.data)
+                log(
+                    message.length > 300
+                        ? message.slice(0, 300) + '…'
+                        : message,
+                )
+            })
+        </script>
+    </body>
+</html>

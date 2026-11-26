@@ -24,13 +24,22 @@ npm run build   # or: npm run watch
 
 In the Figma desktop app, choose **Plugins → Development → Import plugin from manifest…** and pick `manifest.json`. Run it from **Plugins → Development → Soaring Symbols**.
 
-| Command             | What it does                                                    |
-| :------------------ | :-------------------------------------------------------------- |
-| `npm run build`     | Build `dist/code.js` and `dist/ui.html` with esbuild.           |
-| `npm run watch`     | Rebuild on every change.                                        |
-| `npm run typecheck` | Type-check with TypeScript.                                     |
-| `npm run lint`      | ESLint and Prettier.                                            |
-| `npm test`          | Unit tests for the helpers in `src/data.ts` (Node test runner). |
+### Try the UI without Figma
+
+```bash
+npm run preview
+```
+
+This builds the plugin and serves the repository at `http://localhost:4174`. Open `http://localhost:4174/dev/host.html`, a stand-in for Figma that loads `dist/ui.html` in a 360 × 560 frame, sends it the settings the plugin starts with and logs every message the UI sends, such as the mark a click would insert. Add `?theme=dark` for Figma's dark theme. After a change, run `npm run preview` again, or keep `npm run watch` running beside it and reload the page. Inserting needs Figma itself.
+
+| Command             | What it does                                                       |
+| :------------------ | :----------------------------------------------------------------- |
+| `npm run build`     | Build `dist/code.js` and `dist/ui.html` with esbuild.              |
+| `npm run watch`     | Rebuild on every change.                                           |
+| `npm run preview`   | Build, then serve the repository to try the UI in `dev/host.html`. |
+| `npm run typecheck` | Type-check with TypeScript.                                        |
+| `npm run lint`      | ESLint and Prettier.                                               |
+| `npm test`          | Unit tests for the helpers in `src/data.ts` (Node test runner).    |
 
 ## License
 
