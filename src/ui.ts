@@ -27,6 +27,7 @@ import {
     searchAlliances,
     setDataVersion,
     thumbnailUrl,
+    darkThumbnailUrl,
     tintSvg,
     typeLabel,
 } from './data'
@@ -70,16 +71,24 @@ const el = <K extends keyof HTMLElementTagNameMap>(
     return node
 }
 
-// The mono color controls, which live in the Mono column's heading of the
-// detail view, so it is clear they only paint the mono marks
-const monoInput = document.createElement('input')
-monoInput.type = 'color'
-monoInput.title = 'Color of the mono marks'
-monoInput.ariaLabel = monoInput.title
-const primaryButton: HTMLButtonElement = el('button', {
-    className: 'swatch',
-    type: 'button',
-})
+// The size and mono color row moves into the detail view's marks while an
+// airline is shown and leaves the document with them, so it and its parts
+// are found once here, never looked up by id later
+const controls = $('controls')
+// The mono color controls beside the size: a color picker, and a button
+// that paints the mono marks in the airline's primary color
+const monoField = $('mono-field')
+const monoInput = $<HTMLInputElement>('mono')
+const primaryButton = $<HTMLButtonElement>('primary')
+const primarySwatch = $('primary-swatch')
+const monoValue = $('mono-value')
+// The footer's tip for each view, of which showHint shows one
+const listHint = $('list-hint')
+const detailHint = $('detail-hint')
+const showHint = (view: 'list' | 'detail') => {
+    listHint.hidden = view !== 'list'
+    detailHint.hidden = view !== 'detail'
+}
 
 const fetchSvg = (url: string): Promise<string> => {
     let svg = svgCache.get(url)
@@ -95,6 +104,15 @@ const fetchSvg = (url: string): Promise<string> => {
     }
 
     return svg
+}
+
+// An image that fades in once it has loaded, instead of popping in
+const fadeImg = (props: Partial<HTMLImageElement>) => {
+    const img = el('img', props)
+    img.classList.add('fade')
+    img.addEventListener('load', () => img.classList.add('loaded'))
+
+    return img
 }
 
 const dataUrl = (svg: string) =>
@@ -154,9 +172,23 @@ const loadAirlines = async (): Promise<void> => {
 
 /* List view */
 
+// The mark beside a row of the list, and its version for dark backgrounds
+// when it has one: CSS shows the one for the theme, and the hidden one,
+// being lazy, isn't loaded until a theme change shows it
+const thumbNodes = (owner: MarkOwner): Node[] => {
+    const light = thumbnailUrl(owner)
+    if (!light) return [el('span', { className: 'thumb' })]
+    const dark = darkThumbnailUrl(owner)
+    const img = (src: string, className: string) =>
+        fadeImg({ className, src, alt: '', loading: 'lazy' })
+
+    return dark
+        ? [img(light, 'thumb thumb-light'), img(dark, 'thumb thumb-dark')]
+        : [img(light, 'thumb')]
+}
+
 // A row of the list, for an airline (its codes and country) or an alliance
 const ownerRow = (owner: MarkOwner) => {
-    const thumb = thumbnailUrl(owner)
     const meta = isAirline(owner)
         ? [codesLabel(owner), owner.country].filter(Boolean).join(' · ')
         : allianceLabel(owner)
@@ -172,14 +204,7 @@ const ownerRow = (owner: MarkOwner) => {
     const row = el(
         'button',
         { className: 'airline', type: 'button' },
-        thumb
-            ? el('img', {
-                  className: 'thumb',
-                  src: thumb,
-                  alt: '',
-                  loading: 'lazy',
-              })
-            : el('span', { className: 'thumb' }),
+        ...thumbNodes(owner),
         el(
             'span',
             { className: 'airline-text' },
@@ -236,21 +261,47 @@ const renderList = () => {
 
 const capitalize = (text: string) => `${text[0].toUpperCase()}${text.slice(1)}`
 
+// A 16 × 16 line icon from SVG path data
+const icon = (paths: string) => {
+    const span = el('span', { className: 'icon' })
+    span.innerHTML = `<svg viewBox="0 0 16 16" aria-hidden="true">${paths}</svg>`
+
+    return span
+}
+
 // The detail view's columns: the color file, the mono one and the one for
-// dark backgrounds
+// dark backgrounds, whose short title says the rest in its tooltip
 const COLUMNS = [
     {
         key: 'color',
         title: 'Color',
+        hint: "In the airline's colors",
+        icon: '<path d="M8 1.75a6.25 6.25 0 0 0 0 12.5c.9 0 1.25-.6 1.25-1.2 0-.9-.75-1.1-.75-1.8 0-.6.5-1 1.1-1h1.4a3.25 3.25 0 0 0 3.25-3.25c0-2.9-2.8-5.25-6.25-5.25Z"/><circle cx="4.75" cy="7.5" r=".9" class="filled"/><circle cx="6.75" cy="4.75" r=".9" class="filled"/><circle cx="10" cy="4.75" r=".9" class="filled"/>',
         has: (tile: AssetTile) => !tile.mono && !tile.dark,
     },
-    { key: 'mono', title: 'Mono', has: (tile: AssetTile) => tile.mono },
+    {
+        key: 'mono',
+        title: 'Mono',
+        hint: 'In one color, picked beside the size',
+        icon: '<circle cx="8" cy="8" r="6.25"/><path d="M8 1.75v12.5a6.25 6.25 0 0 0 0-12.5Z" class="filled"/>',
+        has: (tile: AssetTile) => tile.mono,
+    },
     {
         key: 'dark',
-        title: 'Dark background',
+        title: 'Dark',
+        hint: 'For dark backgrounds',
+        icon: '<path d="M13.5 9.6A5.75 5.75 0 1 1 6.4 2.5a4.5 4.5 0 0 0 7.1 7.1Z"/>',
         has: (tile: AssetTile) => tile.dark,
     },
 ] as const
+
+// What each kind of mark is, beside its name in the detail view
+const TYPE_HINTS: Record<string, string> = {
+    logo: 'Mark and name, side by side',
+    'logo-stacked': 'Name under the mark',
+    icon: 'The mark on its own',
+    tail: 'As painted on the tail',
+}
 
 const markFor = async (
     owner: MarkOwner,
@@ -266,7 +317,7 @@ const markFor = async (
 }
 
 const tileButton = (owner: MarkOwner, tile: AssetTile) => {
-    const img = el('img', { alt: '' })
+    const img = fadeImg({ alt: '' })
     const preview = el('span', { className: 'tile-preview' }, img)
     const button = el(
         'button',
@@ -360,6 +411,7 @@ const showOwner = (owner: MarkOwner) => {
     current = owner
     listView.hidden = true
     detailView.hidden = false
+    showHint('detail')
     $('detail-name').textContent = owner.name
     $('detail-meta').textContent = detailMeta(owner)
 
@@ -367,7 +419,7 @@ const showOwner = (owner: MarkOwner) => {
     // (branding.primary_color), not its full palette
     const primary = owner.branding?.primary_color
     primaryButton.hidden = !primary
-    primaryButton.style.background = primary ?? ''
+    primarySwatch.style.background = primary ?? ''
     primaryButton.title = `Paint the mono marks in the primary color (${primary})`
     primaryButton.ariaLabel = primaryButton.title
 
@@ -380,6 +432,7 @@ const showOwner = (owner: MarkOwner) => {
         })),
     ]
     if (!sets[0].tiles.length) {
+        monoField.hidden = true
         content.replaceChildren(
             el(
                 'div',
@@ -403,23 +456,27 @@ const showOwner = (owner: MarkOwner) => {
 
         return node
     }
-    const monoControls: Node[] = [monoInput, primaryButton]
+    // The mono color only matters when there are mono marks
+    monoField.hidden = !columns.some((column) => column.key === 'mono')
     const heading = row(
         ...columns.map((column) =>
             el(
                 'div',
-                { className: 'column-title' },
+                { className: 'column-title', title: column.hint },
+                icon(column.icon),
                 el('span', {}, column.title),
-                ...(column.key === 'mono' ? monoControls : []),
             ),
         ),
     )
     heading.classList.add('column-titles')
+    // The column names, then the size and mono color, stay in view while
+    // the marks scroll
+    const head = el('div', { className: 'detail-head' }, heading, controls)
 
     // Each set of marks (the current ones, then older ones newest first)
     // has a row per mark type; the set's title only when there is history
     content.replaceChildren(
-        heading,
+        head,
         ...sets.flatMap((set) => [
             ...(history.length
                 ? [el('h2', { className: 'section-title' }, set.title)]
@@ -430,9 +487,14 @@ const showOwner = (owner: MarkOwner) => {
 
                     return [
                         el(
-                            'h3',
+                            'div',
                             { className: 'type-title' },
-                            capitalize(typeLabel(type)),
+                            el('h3', {}, capitalize(typeLabel(type))),
+                            el(
+                                'span',
+                                { className: 'secondary' },
+                                TYPE_HINTS[type] ?? '',
+                            ),
                         ),
                         row(
                             ...columns.map((column) => {
@@ -456,6 +518,7 @@ const showList = () => {
     current = undefined
     detailView.hidden = true
     listView.hidden = false
+    showHint('list')
     renderList()
     search.focus()
     search.select()
@@ -468,21 +531,26 @@ const saveSettings = (next: Partial<Settings>) => {
     send({ type: 'settings', settings })
 }
 
+// The picker's swatch, and its hex beside it
+const showMono = (color: string) => {
+    monoInput.value = color
+    monoValue.textContent = color.toUpperCase()
+}
+
 const applySettings = () => {
     sizeSelect.value = String(settings.size)
-    monoInput.value = settings.monoColor
+    showMono(settings.monoColor)
 }
 
 sizeSelect.append(
-    ...SIZES.map((size) =>
-        el('option', { value: String(size) }, `${size} × ${size}`),
-    ),
+    ...SIZES.map((size) => el('option', { value: String(size) }, `${size} px`)),
 )
 sizeSelect.addEventListener('change', () =>
     saveSettings({ size: Number(sizeSelect.value) }),
 )
 monoInput.addEventListener('input', () => {
     settings.monoColor = monoInput.value
+    showMono(monoInput.value)
     refreshMonoTiles()
 })
 monoInput.addEventListener('change', () =>
@@ -491,7 +559,7 @@ monoInput.addEventListener('change', () =>
 primaryButton.addEventListener('click', () => {
     const primary = current?.branding?.primary_color
     if (!primary) return
-    monoInput.value = primary
+    showMono(primary)
     saveSettings({ monoColor: primary })
     refreshMonoTiles()
 })

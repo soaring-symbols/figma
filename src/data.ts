@@ -261,16 +261,32 @@ export const markTitle = (owner: MarkOwner, mark: HistoricalMarks): string => {
         : years
 }
 
-// The file to show next to an airline or alliance in the list: its icon,
-// else its logo, else its tail, in color when there is a color version
-export const thumbnailUrl = (owner: MarkOwner): string | undefined => {
+// The type of mark shown next to an airline or alliance in the list: its
+// icon, else its logo, else its tail
+const thumbnailType = (owner: MarkOwner) => {
     const assets: Airline['assets'] = owner.assets
-    for (const type of ['icon', 'logo', 'tail'] as const) {
-        const info = assets[type]
-        if (info) return assetUrl(owner, info.color ? type : `${type}-mono`)
-    }
+    const type = (['icon', 'logo', 'tail'] as const).find((t) => assets[t])
 
-    return undefined
+    return type && { type, info: assets[type]! }
+}
+
+// The file to show next to an airline or alliance in the list, in color when
+// there is a color version
+export const thumbnailUrl = (owner: MarkOwner): string | undefined => {
+    const thumb = thumbnailType(owner)
+
+    return (
+        thumb &&
+        assetUrl(owner, thumb.info.color ? thumb.type : `${thumb.type}-mono`)
+    )
+}
+
+// The version of thumbnailUrl's file for dark backgrounds, shown in the list
+// on a dark theme, or undefined when the file has none
+export const darkThumbnailUrl = (owner: MarkOwner): string | undefined => {
+    const thumb = thumbnailType(owner)
+
+    return thumb?.info.dark ? assetUrl(owner, `${thumb.type}-dark`) : undefined
 }
 
 const HEX = /^#[0-9a-f]{6}$/i

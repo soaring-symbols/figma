@@ -8,7 +8,7 @@ A Figma and FigJam plugin that searches the [Soaring Symbols](https://github.com
 
 - `manifest.json` — the plugin manifest. `id` (`1701522206126108009`) was assigned by Figma when the plugin was first published, as [this Community page](https://www.figma.com/community/plugin/1701522206126108009); never change it, or Figma treats the plugin as a new one.
 - `src/code.ts` — the main thread, which owns the document: inserts a mark (into the single selected frame, component or section, else at the viewport center), handles marks dropped from the UI (`figma.on('drop')`) and keeps the settings in `figma.clientStorage`.
-- `src/ui.ts` + `src/ui.html` — the UI iframe: the list and search (alliances with marks first, then airlines), the marks of an airline or alliance (a row per mark type, a column per file: color, mono, dark background), the size control and, in the Mono column's heading, the mono color controls. It fetches everything; the main thread never touches the network.
+- `src/ui.ts` + `src/ui.html` — the UI iframe: the list and search (alliances with marks first, then airlines), the marks of an airline or alliance (a row per mark type, a column per file: color, mono, dark background), the column names as pills, and under them on the same three columns the size and the mono color (a picker, and the primary color in one click), and a footer whose tip changes with the view. It fetches everything; the main thread never touches the network.
 - `src/data.ts` — pure helpers shared by the UI and the tests: data URLs (`DATA_LINE`), search ranking (`searchAirlines`, `searchAlliances`), asset tiles for an airline or an alliance (`MarkOwner`; `isAirline` tells them apart, alliances have icons and logos under `alliances/<slug>/` and no tail) (current ones, and with a `history` entry an older set under `history/<since>/`; `earlierMarks` lists them newest first), tinting mono SVGs.
 - `src/messages.ts` — the message types between the UI and the main thread, and the default settings.
 - `scripts/build.js` — esbuild: `src/code.ts` → `dist/code.js` (ES2017, for Figma's main-thread engine), and `src/ui.ts` bundled and inlined into `dist/ui.html`, since Figma loads the UI as one HTML string.
@@ -44,6 +44,7 @@ Dependencies are tracked in both `package-lock.json` and `bun.lock`; update both
 - Marks are square (a `64` viewBox for logos, `24` for icons and tails); the main thread scales them with `rescale`, which keeps the vectors in proportion, never `resize`.
 - Drag and drop uses Figma's `pluginDrop` message from the UI's `dragend`; its `dropMetadata` must stay plain JSON.
 - In the UI, a key handler that moves focus to a button must `preventDefault()`, or the same key press clicks that button.
+- The size and mono color row (`#controls`) moves into the detail view's marks while an airline is shown, and leaves the document when the list replaces them; `ui.ts` keeps references to it and its parts, so never look them up by id after the first airline.
 - The main thread can only be tried inside Figma. The UI can be checked in a browser by loading `dist/ui.html` in an iframe and posting it an `init` message, as `code.ts` does.
 
 ## Conventions

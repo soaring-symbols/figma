@@ -27,6 +27,7 @@ import {
     searchAlliances,
     setDataVersion,
     thumbnailUrl,
+    darkThumbnailUrl,
     tintSvg,
 } from '../src/data.ts'
 
@@ -214,6 +215,29 @@ describe('thumbnailUrl', () => {
         })
         assert.equal(thumbnailUrl(airline), assetUrl(airline, 'icon-mono'))
         assert.equal(thumbnailUrl(fake({})), undefined)
+    })
+})
+
+describe('darkThumbnailUrl', () => {
+    it('gives the dark version of the file thumbnailUrl picks', () => {
+        const airline = fake({
+            assets: {
+                logo: { color: true, mono: true, dark: true, colors: [] },
+                icon: { color: true, mono: true, dark: true, colors: [] },
+            },
+        })
+        assert.equal(darkThumbnailUrl(airline), assetUrl(airline, 'icon-dark'))
+    })
+
+    it('is undefined when that file has no dark version, even if another does', () => {
+        const airline = fake({
+            assets: {
+                logo: { color: true, mono: true, dark: true, colors: [] },
+                icon: { color: true, mono: true, dark: false, colors: [] },
+            },
+        })
+        assert.equal(darkThumbnailUrl(airline), undefined)
+        assert.equal(darkThumbnailUrl(fake({})), undefined)
     })
 })
 

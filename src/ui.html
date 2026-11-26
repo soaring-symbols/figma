@@ -3,15 +3,20 @@
     <head>
         <meta charset="utf-8" />
         <style>
+            /* Figma's --figma-color-* variables (themeColors in code.ts) follow its
+               light and dark themes */
             * {
                 box-sizing: border-box;
+                margin: 0;
             }
+
             html,
             body {
-                margin: 0;
                 height: 100%;
             }
             body {
+                display: flex;
+                flex-direction: column;
                 font:
                     11px/16px Inter,
                     system-ui,
@@ -19,8 +24,6 @@
                     sans-serif;
                 color: var(--figma-color-text, #333);
                 background: var(--figma-color-bg, #fff);
-                display: flex;
-                flex-direction: column;
             }
             button,
             input,
@@ -28,36 +31,95 @@
                 font: inherit;
                 color: inherit;
             }
+            /* Buttons, fields and links start bare; each class gives its
+               own box */
+            button {
+                padding: 0;
+                border: 0;
+                background: none;
+            }
+            input,
+            select {
+                border: 0;
+            }
+            a {
+                text-decoration: none;
+            }
+            svg .filled,
+            svg.filled {
+                fill: currentColor;
+                stroke: none;
+            }
+            svg {
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 1.5;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+            :focus-visible {
+                outline: 2px solid var(--figma-color-border-selected, #09f);
+                outline-offset: 1px;
+            }
+            /* The detail view's only rule is under the size control */
             header {
                 padding: 8px;
-                border-bottom: 1px solid var(--figma-color-border, #e6e6e6);
                 display: flex;
                 gap: 6px;
                 align-items: center;
             }
-            .search {
+            .search-field {
+                position: relative;
                 flex: 1;
-                height: 32px;
-                padding: 0 8px;
-                border: 1px solid var(--figma-color-border, #e6e6e6);
-                border-radius: 5px;
-                background: transparent;
+                min-width: 0;
+                color: var(--figma-color-text-tertiary, #999);
+            }
+            .search-field svg {
+                position: absolute;
+                left: 9px;
+                top: 8px;
+                width: 14px;
+                height: 14px;
+                pointer-events: none;
+            }
+            .search {
+                width: 100%;
+                height: 30px;
+                padding: 0 8px 0 29px;
+                border-radius: 8px;
+                background: var(--figma-color-bg-secondary, #f3f3f3);
+                color: var(--figma-color-text, #333);
                 outline: none;
+                transition: box-shadow 140ms ease-out;
             }
             .search:focus {
-                border-color: var(--figma-color-border-selected, #0d99ff);
+                box-shadow:
+                    inset 0 0 0 1px var(--figma-color-border-selected, #09f),
+                    0 0 0 3px
+                        var(--figma-color-bg-selected, rgb(0 153 255 / 0.12));
+            }
+            .search:focus-visible {
+                outline: none;
             }
             .icon-button {
-                width: 32px;
-                height: 32px;
-                border: 0;
-                border-radius: 5px;
+                display: grid;
+                place-items: center;
+                width: 30px;
+                height: 30px;
+                padding: 0;
+                border-radius: 8px;
                 background: transparent;
+                color: var(--figma-color-text-secondary, #666);
                 cursor: pointer;
-                font-size: 16px;
+                transition: background-color 120ms ease-out;
+            }
+            .icon-button svg {
+                width: 16px;
+                height: 16px;
             }
             .icon-button:hover {
-                background: var(--figma-color-bg-hover, #f5f5f5);
+                background: var(--figma-color-bg-secondary, #f3f3f3);
+                color: var(--figma-color-text, #333);
             }
             main {
                 flex: 1;
@@ -66,14 +128,14 @@
             .notice {
                 margin: 8px;
                 padding: 6px 8px;
-                border-radius: 5px;
-                background: var(--figma-color-bg-warning-tertiary, #fff1c2);
-                color: var(--figma-color-text, #333);
+                border-radius: 8px;
+                background: var(--figma-color-bg-secondary, #f3f3f3);
+                color: var(--figma-color-text-secondary, #666);
             }
             .empty {
                 padding: 24px 16px;
                 text-align: center;
-                color: var(--figma-color-text-secondary, #757575);
+                color: var(--figma-color-text-tertiary, #999);
             }
             .airline {
                 display: flex;
@@ -81,14 +143,14 @@
                 gap: 10px;
                 width: 100%;
                 padding: 6px 12px;
-                border: 0;
+                border-radius: 0;
                 background: transparent;
                 text-align: left;
                 cursor: pointer;
             }
             .airline:hover,
             .airline:focus-visible {
-                background: var(--figma-color-bg-hover, #f5f5f5);
+                background: var(--figma-color-bg-secondary, #f3f3f3);
                 outline: none;
             }
             .thumb {
@@ -102,20 +164,20 @@
                 min-width: 0;
             }
             .airline-name {
-                font-weight: 500;
+                font-weight: 600;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
             .secondary {
-                color: var(--figma-color-text-secondary, #757575);
+                color: var(--figma-color-text-tertiary, #999);
             }
             .badge {
                 margin-left: 4px;
                 padding: 0 4px;
-                border-radius: 3px;
-                background: var(--figma-color-bg-secondary, #f0f0f0);
-                color: var(--figma-color-text-secondary, #757575);
+                border-radius: 4px;
+                background: var(--figma-color-bg-secondary, #f3f3f3);
+                color: var(--figma-color-text-secondary, #666);
                 font-size: 10px;
             }
             .detail-title {
@@ -123,57 +185,129 @@
                 min-width: 0;
             }
             .detail-title h1 {
-                margin: 0;
                 font-size: 13px;
                 line-height: 18px;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
+            /* The size and the mono color sit on the same three columns as the pills
+               above them, filled where the pills are outlined */
             .controls {
-                display: flex;
-                gap: 12px;
-                align-items: center;
-                padding: 8px 12px;
-                border-bottom: 1px solid var(--figma-color-border, #e6e6e6);
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+                margin: 0 12px;
+                padding: 8px 0 10px;
+                border-bottom: 1px solid var(--figma-color-border, #eee);
             }
-            .controls label {
+            .mono-field {
+                display: contents;
+            }
+            .field {
+                position: relative;
                 display: flex;
                 gap: 6px;
                 align-items: center;
-            }
-            .controls select {
-                height: 24px;
-                border: 1px solid var(--figma-color-border, #e6e6e6);
-                border-radius: 4px;
-                background: var(--figma-color-bg, #fff);
-            }
-            .column-title input[type='color'],
-            .swatch {
-                flex: none;
-                width: 18px;
-                height: 18px;
-                padding: 0;
-                border: 1px solid var(--figma-color-border, #e6e6e6);
-                border-radius: 4px;
-                background: none;
+                min-width: 0;
+                height: 30px;
+                padding: 0 24px 0 10px;
+                border-radius: 9px;
+                background: var(--figma-color-bg-secondary, #f3f3f3);
                 cursor: pointer;
             }
+            .field > svg {
+                position: absolute;
+                right: 6px;
+                top: 7px;
+                width: 16px;
+                height: 16px;
+                color: var(--figma-color-text-tertiary, #999);
+                pointer-events: none;
+            }
+            .field-label {
+                color: var(--figma-color-text-tertiary, #999);
+            }
+            /* The select fills its field, so a click anywhere on it opens the list */
+            .field select {
+                appearance: none;
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                padding: 0 24px 0 40px;
+                border-radius: 9px;
+                background: transparent;
+                text-overflow: clip;
+                cursor: pointer;
+            }
+            .field-value {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: clip;
+                white-space: nowrap;
+                font-variant-numeric: tabular-nums;
+            }
+            .primary-button {
+                justify-content: center;
+                padding: 0 10px;
+            }
+            .field input,
             .swatch {
+                flex: none;
+                width: 14px;
+                height: 14px;
+                padding: 0;
+                border: 0;
+                border-radius: 50%;
+                background: none;
+                overflow: hidden;
+                /* A ring that follows the text color, so a dark swatch shows in the
+                   dark theme too */
+                box-shadow: inset 0 0 0 1px
+                    color-mix(
+                        in srgb,
+                        var(--figma-color-text, #333) 20%,
+                        transparent
+                    );
+                cursor: pointer;
+            }
+            .field input::-webkit-color-swatch-wrapper {
+                padding: 0;
+            }
+            .field input::-webkit-color-swatch {
+                border: 0;
+                border-radius: 50%;
+            }
+            .field input::-moz-color-swatch {
+                border: 0;
                 border-radius: 50%;
             }
             .section-title {
-                margin: 0;
                 padding: 12px 12px 0;
                 font-size: 11px;
                 font-weight: 600;
                 color: var(--figma-color-text-secondary, #666);
             }
+            /* A kind of mark: its name, and what it is on the right */
             .type-title {
-                margin: 0;
-                padding: 8px 12px 4px;
+                display: flex;
+                gap: 8px;
+                align-items: baseline;
+                justify-content: space-between;
+                padding: 12px 12px 6px;
+            }
+            .type-title h3 {
+                flex: none;
                 font-size: 11px;
-                font-weight: 500;
+                font-weight: 600;
+            }
+            .type-title .secondary {
+                min-width: 0;
+                font-size: 11px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .tiles {
                 display: grid;
@@ -181,23 +315,36 @@
                 padding: 0 12px;
             }
             /* The column names stay in view while the marks scroll */
-            .column-titles {
+            .detail-head {
                 position: sticky;
                 top: 0;
                 z-index: 1;
-                padding-top: 8px;
-                padding-bottom: 8px;
                 background: var(--figma-color-bg, #fff);
-                border-bottom: 1px solid var(--figma-color-border, #e6e6e6);
             }
+            .column-titles {
+                padding-top: 4px;
+            }
+            /* Each column's name is a pill */
             .column-title {
                 display: flex;
-                gap: 4px;
+                gap: 6px;
                 align-items: center;
+                justify-content: center;
                 min-width: 0;
-                height: 18px;
-                color: var(--figma-color-text-secondary, #757575);
+                height: 30px;
+                padding: 0 8px;
+                border-radius: 9px;
+                box-shadow: inset 0 0 0 1px var(--figma-color-border, #eee);
                 font-weight: 500;
+            }
+            .column-title .icon {
+                flex: none;
+                display: flex;
+                color: var(--figma-color-text-secondary, #666);
+            }
+            .column-title .icon svg {
+                width: 14px;
+                height: 14px;
             }
             .column-title span {
                 white-space: nowrap;
@@ -208,52 +355,56 @@
                 padding-bottom: 12px;
             }
             .tile-missing {
-                border: 1px dashed var(--figma-color-border, #e6e6e6);
-                border-radius: 6px;
+                border: 1px dashed var(--figma-color-border, #eee);
+                border-radius: 12px;
             }
+            /* A frame around the preview: the tile's ring, then a 5px gap */
             .tile {
                 display: flex;
-                padding: 4px;
-                border: 1px solid var(--figma-color-border, #e6e6e6);
-                border-radius: 6px;
+                padding: 5px;
+                border-radius: 12px;
                 background: transparent;
+                box-shadow: inset 0 0 0 1px var(--figma-color-border, #eee);
                 cursor: grab;
+                transition:
+                    box-shadow 140ms ease-out,
+                    transform 140ms ease-out;
             }
             .tile:hover,
             .tile:focus-visible {
-                border-color: var(--figma-color-border-selected, #0d99ff);
+                box-shadow:
+                    inset 0 0 0 1.5px var(--figma-color-border-selected, #09f),
+                    0 6px 16px -8px rgb(0 0 0 / 0.25);
                 outline: none;
+            }
+            .tile:active {
+                transform: scale(0.97);
+                cursor: grabbing;
+            }
+            .tile:disabled {
+                cursor: not-allowed;
+                opacity: 0.5;
+                box-shadow: inset 0 0 0 1px var(--figma-color-border, #eee);
+                transform: none;
             }
             .tile-preview {
                 width: 100%;
-                height: 72px;
+                height: 70px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border-radius: 4px;
-                /* A checkerboard, so white and transparent parts show */
-                background-color: var(--figma-color-bg, #fff);
+                border-radius: 7px;
+                overflow: hidden;
+                /* A light checkerboard in both themes, so white and transparent parts
+                   show and dark marks stay readable; the dark background version gets
+                   its own dark preview below */
+                --check: #f5f5f5;
+                background-color: #fff;
                 background-image:
-                    linear-gradient(
-                        45deg,
-                        var(--figma-color-bg-secondary, #f0f0f0) 25%,
-                        transparent 25%
-                    ),
-                    linear-gradient(
-                        -45deg,
-                        var(--figma-color-bg-secondary, #f0f0f0) 25%,
-                        transparent 25%
-                    ),
-                    linear-gradient(
-                        45deg,
-                        transparent 75%,
-                        var(--figma-color-bg-secondary, #f0f0f0) 75%
-                    ),
-                    linear-gradient(
-                        -45deg,
-                        transparent 75%,
-                        var(--figma-color-bg-secondary, #f0f0f0) 75%
-                    );
+                    linear-gradient(45deg, var(--check) 25%, transparent 25%),
+                    linear-gradient(-45deg, var(--check) 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, var(--check) 75%),
+                    linear-gradient(-45deg, transparent 75%, var(--check) 75%);
                 background-size: 12px 12px;
                 background-position:
                     0 0,
@@ -263,20 +414,86 @@
             }
             /* A mark for dark backgrounds shows on one, as it will be used */
             .tile[data-dark='true'] .tile-preview {
-                background: #1e1e1e;
+                background: #262626;
             }
             .tile-preview img {
-                width: 56px;
-                height: 56px;
+                width: 60px;
+                height: 60px;
                 pointer-events: none;
+                transition: transform 180ms ease-out;
             }
+            .tile:hover .tile-preview img {
+                transform: scale(1.08);
+            }
+            /* Images fade in once loaded, instead of popping in */
+            .fade {
+                opacity: 0;
+                transition: opacity 200ms ease-out;
+            }
+            .fade.loaded {
+                opacity: 1;
+            }
+            /* How to use a mark, and the website, in one drop-zone-like line */
             footer {
-                padding: 6px 12px;
-                border-top: 1px solid var(--figma-color-border, #e6e6e6);
-                color: var(--figma-color-text-secondary, #757575);
+                padding: 4px 12px 10px;
             }
-            footer a {
+            .hint {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                height: 34px;
+                padding: 0 12px;
+                border: 1px dashed
+                    color-mix(
+                        in srgb,
+                        var(--figma-color-text-tertiary, #999) 45%,
+                        transparent
+                    );
+                border-radius: 10px;
+                color: var(--figma-color-text-tertiary, #999);
+            }
+            .hint svg {
+                flex: none;
+                width: 16px;
+                height: 16px;
+            }
+            .hint-copy {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            .hint-copy span {
+                min-width: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .hint a {
+                flex: none;
                 color: inherit;
+            }
+            .hint a:hover {
+                color: var(--figma-color-border-selected, #09f);
+            }
+            /* On the dark theme, the list shows a mark's version for dark
+               backgrounds when it has one */
+            .thumb-dark {
+                display: none;
+            }
+            .figma-dark .thumb-light {
+                display: none;
+            }
+            .figma-dark .thumb-dark {
+                display: block;
+            }
+            @media (prefers-reduced-motion: reduce) {
+                *,
+                *::before,
+                *::after {
+                    transition: none !important;
+                }
             }
             [hidden] {
                 display: none !important;
@@ -286,15 +503,22 @@
     <body>
         <section id="list-view">
             <header>
-                <input
-                    id="search"
-                    class="search"
-                    type="search"
-                    placeholder="Search airlines or alliances by name or code"
-                    autocomplete="off"
-                    spellcheck="false"
-                    autofocus
-                />
+                <label class="search-field">
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <circle cx="7" cy="7" r="4.5" />
+                        <path d="m10.5 10.5 3 3" />
+                    </svg>
+                    <input
+                        id="search"
+                        class="search"
+                        type="search"
+                        placeholder="Search airlines and alliances"
+                        aria-label="Search airlines and alliances by name, IATA or ICAO code"
+                        autocomplete="off"
+                        spellcheck="false"
+                        autofocus
+                    />
+                </label>
             </header>
         </section>
         <section id="detail-view" hidden>
@@ -305,29 +529,76 @@
                     title="Back to the list"
                     aria-label="Back to the list"
                 >
-                    ←
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M10 3.5 5.5 8l4.5 4.5" />
+                    </svg>
                 </button>
                 <div class="detail-title">
                     <h1 id="detail-name"></h1>
                     <div id="detail-meta" class="secondary"></div>
                 </div>
             </header>
-            <div class="controls">
-                <label>
-                    Size
+            <!-- Moved under the column names when an airline is shown -->
+            <div id="controls" class="controls">
+                <label class="field" title="Size of an inserted mark">
+                    <span class="field-label">Size</span>
                     <select id="size"></select>
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="m5 6.5 3 3 3-3" />
+                    </svg>
                 </label>
+                <!-- The mono marks' color, under the Mono column's name: a
+                     picker, and the airline's primary color in one click -->
+                <div id="mono-field" class="mono-field">
+                    <label
+                        class="field"
+                        title="Pick the color of the mono marks"
+                    >
+                        <input id="mono" type="color" />
+                        <span id="mono-value" class="field-value"></span>
+                        <svg viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="m5 6.5 3 3 3-3" />
+                        </svg>
+                    </label>
+                    <button
+                        id="primary"
+                        class="field primary-button"
+                        type="button"
+                    >
+                        <span id="primary-swatch" class="swatch"></span>
+                        Primary
+                    </button>
+                </div>
             </div>
         </section>
         <main id="content"></main>
         <footer>
-            Click a mark to insert it, or drag it onto the canvas.
-            <a
-                href="https://soaringsymbols.org"
-                target="_blank"
-                rel="noreferrer"
-                >soaringsymbols.org</a
-            >
+            <!-- One tip per view: what the list can be searched by, how to
+                 use a mark in the detail view -->
+            <div class="hint">
+                <span id="list-hint" class="hint-copy">
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <circle cx="7" cy="7" r="4.5" />
+                        <path d="m10.5 10.5 3 3" />
+                    </svg>
+                    <span>Try VN, HVN or Vietnam</span>
+                </span>
+                <span id="detail-hint" class="hint-copy" hidden>
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <path
+                            d="M6.5 1.5h-1m-2 0a1 1 0 0 0-1 1m0 2v1m0 2v1m0 2a1 1 0 0 0 1 1m2 0h1M8.5 1.5h1m2 0a1 1 0 0 1 1 1v1"
+                        />
+                        <path d="m8 7 7 2.5-3 1-1 3z" class="filled" />
+                    </svg>
+                    <span>Click or drag to insert</span>
+                </span>
+                <a
+                    href="https://soaringsymbols.org"
+                    target="_blank"
+                    rel="noreferrer"
+                    >soaringsymbols.org</a
+                >
+            </div>
         </footer>
         <script>
             /* ui.ts is inlined here by the build */
