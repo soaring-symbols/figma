@@ -41,6 +41,10 @@ This builds the plugin and serves the repository at `http://localhost:4174`. Ope
 | `npm run lint`      | ESLint and Prettier.                                               |
 | `npm test`          | Unit tests for the helpers in `src/data.ts` (Node test runner).    |
 
+## Publishing
+
+How to publish a new version to the Figma Community, from the checks to the publish dialog, is in [`store/PUBLISHING.md`](store/PUBLISHING.md); the listing text and images are in [`store/LISTING.md`](store/LISTING.md).
+
 ## License
 
 The plugin's code is [MIT](LICENSE). The airline marks are trademarks of their owners; read the package's [Disclaimer](https://github.com/soaring-symbols/soaring-symbols/blob/main/DISCLAIMER.md) before using them.
